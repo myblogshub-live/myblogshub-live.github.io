@@ -304,6 +304,7 @@
   var pid;
   try { pid = localStorage.getItem('podcast_id'); } catch(e) { return; }
   if (!pid || pid === 'undefined') return;
+  if (sessionStorage.getItem('mbh-played') !== '1') return;
   if (document.getElementById('fullPlayer')) return;
   var el = document.getElementById('miniPlayer');
   var ttl = localStorage.getItem('podcast_title');
@@ -346,6 +347,7 @@
     e.stopPropagation();
     a.pause(); a.src = '';
     if (el) el.classList.remove('active');
+    sessionStorage.removeItem('mbh-played');
     ['podcast_id','podcast_title','podcast_img','podcast_audio','podcast_time','podcast_playing'].forEach(function(k){ try{ localStorage.removeItem(k); }catch(ex){} });
     setTimeout(function(){ if (el) el.style.display = 'none'; }, 300);
   });

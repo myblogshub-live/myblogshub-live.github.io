@@ -266,6 +266,7 @@
       }
       _playReq = true;
       setUILoading();
+      sessionStorage.setItem('mbh-played', '1');
       localStorage.setItem('podcast_id', id);
       localStorage.setItem('podcast_title', ep.title);
       localStorage.setItem('podcast_img', ep.img);

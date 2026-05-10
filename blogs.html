@@ -179,23 +179,23 @@
 <script>
 (function(){
   var pid;
-  try { pid = sessionStorage.getItem('podcast_id'); } catch(e) { return; }
+  try { pid = localStorage.getItem('podcast_id'); } catch(e) { return; }
   if (!pid || pid === 'undefined') return;
   if (document.getElementById('fullPlayer')) return;
   var el = document.getElementById('miniPlayer');
-  var ttl = sessionStorage.getItem('podcast_title');
-  var url = sessionStorage.getItem('podcast_audio');
+  var ttl = localStorage.getItem('podcast_title');
+  var url = localStorage.getItem('podcast_audio');
   if (!el || !ttl || !url) return;
   el.style.display = 'block';
   setTimeout(function(){ el.classList.add('active'); }, 50);
   var img = document.getElementById('miniImg');
   var title = document.getElementById('miniTitle');
-  if (img) img.src = sessionStorage.getItem('podcast_img') || '';
+  if (img) img.src = localStorage.getItem('podcast_img') || '';
   if (title) title.textContent = ttl;
   var a = new Audio(url);
   a.preload = 'auto';
-  var ct = parseFloat(sessionStorage.getItem('podcast_time')) || 0;
-  var wasPlaying = sessionStorage.getItem('podcast_playing') === '1';
+  var ct = parseFloat(localStorage.getItem('podcast_time')) || 0;
+  var wasPlaying = localStorage.getItem('podcast_playing') === '1';
   a.addEventListener('loadedmetadata', function(){
     if (ct > 0 && ct < a.duration) a.currentTime = ct;
   });
@@ -226,12 +226,12 @@
     e.stopPropagation();
     a.pause(); a.src = '';
     if (el) el.classList.remove('active');
-    ['podcast_id','podcast_title','podcast_img','podcast_audio','podcast_time','podcast_playing'].forEach(function(k){ try{ sessionStorage.removeItem(k); }catch(ex){} });
+    ['podcast_id','podcast_title','podcast_img','podcast_audio','podcast_time','podcast_playing'].forEach(function(k){ try{ localStorage.removeItem(k); }catch(ex){} });
     setTimeout(function(){ if (el) el.style.display = 'none'; }, 300);
   });
   setInterval(function(){ try {
-    sessionStorage.setItem('podcast_time', a.currentTime);
-    sessionStorage.setItem('podcast_playing', !a.paused ? '1' : '0');
+    localStorage.setItem('podcast_time', a.currentTime);
+    localStorage.setItem('podcast_playing', !a.paused ? '1' : '0');
   } catch(ex){} }, 1000);
   if (wasPlaying) {
     a.addEventListener('canplay', function(){

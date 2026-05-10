@@ -24,17 +24,20 @@
 
     .audio-player { background:var(--card-bg); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:clamp(18px,2.5vw,28px); margin-bottom:28px; }
     .player-controls { display:flex; align-items:center; gap:16px; }
-    .player-btn { width:48px;height:48px;border-radius:50%;border:none;background:var(--text-color);color:var(--bg-color);font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform 0.45s var(--spring),box-shadow 0.4s var(--smooth); }
+    .player-btn { width:48px;height:48px;border-radius:50%;border:none;background:var(--text-color);color:var(--bg-color);font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform 0.25s cubic-bezier(0.34,1.56,0.64,1),box-shadow 0.3s ease; }
     .player-btn:hover { transform:scale(1.08); box-shadow:0 0 30px rgba(0,0,0,0.08); }
-    .player-btn:active { transform:scale(0.94); }
+    .player-btn:active { transform:scale(0.92); transition-duration:0.05s; }
     .dark-theme .player-btn:hover { box-shadow:0 0 30px rgba(255,255,255,0.08); }
     .volume-btn { width:38px;height:38px;background:transparent;border:1px solid var(--border-color);color:var(--sub-text);font-size:0.9rem; }
     .volume-btn:hover { background:var(--card-bg);border-color:var(--text-color);color:var(--text-color);box-shadow:none; }
     .player-progress-wrap { flex:1;min-width:0; }
-    .player-progress { height:5px;background:var(--border-color);border-radius:10px;cursor:pointer;position:relative;margin-bottom:6px; }
-    .player-progress-filled { height:100%;background:var(--text-color);border-radius:10px;width:0%;transition:width 0.1s linear; }
-    .player-progress-thumb { width:14px;height:14px;background:var(--text-color);border-radius:50%;position:absolute;top:50%;transform:translate(-50%,-50%);left:0%;opacity:0;transition:opacity 0.2s var(--smooth);pointer-events:none; }
-    .player-progress:hover .player-progress-thumb { opacity:1; }
+    .player-progress { height:6px;background:var(--border-color);border-radius:10px;cursor:pointer;position:relative;margin-bottom:6px; }
+    .player-progress:hover { height:8px; }
+    .player-progress:active { cursor:grabbing; }
+    .player-progress-filled { height:100%;background:var(--text-color);border-radius:10px;width:0%;pointer-events:none; }
+    .player-progress-thumb { width:16px;height:16px;background:var(--text-color);border-radius:50%;position:absolute;top:50%;transform:translate(-50%,-50%) scale(0);left:0%;transition:transform 0.15s cubic-bezier(0.34,1.56,0.64,1);pointer-events:none;box-shadow:0 2px 8px rgba(0,0,0,0.15); }
+    .player-progress:hover .player-progress-thumb { transform:translate(-50%,-50%) scale(1); }
+    .player-progress.dragging .player-progress-thumb { transform:translate(-50%,-50%) scale(1.2); }
     .player-time { display:flex;justify-content:space-between;font-size:0.7rem;color:var(--sub-text);font-variant-numeric:tabular-nums; }
 
     .related-section { border-top:1px solid var(--border-color);padding-top:clamp(40px,5vw,60px); }
@@ -114,7 +117,7 @@
             </div>
 
             <div class="audio-player">
-              <audio id="audioEl" preload="metadata"></audio>
+              <audio id="audioEl" preload="auto"></audio>
               <div class="player-controls">
                 <button class="player-btn" id="playBtn" aria-label="Play"><i class="fas fa-play"></i></button>
                 <div class="player-progress-wrap">
@@ -169,12 +172,12 @@
     const params = new URLSearchParams(window.location.search);
     const id = parseInt(params.get('id')) || 0;
     const ep = podcastData[id];
-    if (!ep) { window.location.href = 'podcasts.html'; }
+    if (!ep) window.location.href = 'podcasts.html';
 
     document.title = ep.title + ' – H.x.H Podcast';
     document.getElementById('podcastCover').src = ep.img;
     document.getElementById('podcastCover').alt = ep.title;
-    document.getElementById('podcastCategory').textContent = ep.category;
+    document.getElementById('podcastCategory').textContent = ep.category.charAt(0).toUpperCase() + ep.category.slice(1);
     document.getElementById('podcastTitle').textContent = ep.title;
     document.getElementById('podcastHost').innerHTML = '<i class="fas fa-microphone"></i> ' + ep.host;
     document.getElementById('podcastDate').innerHTML = '<i class="far fa-calendar"></i> ' + ep.date;
@@ -183,6 +186,7 @@
 
     const audio = document.getElementById('audioEl');
     audio.src = ep.audio;
+    audio.preload = 'auto';
 
     const playBtn = document.getElementById('playBtn');
     const progressBar = document.getElementById('progressBar');
@@ -194,23 +198,35 @@
     const audioIcon = volumeBtn.querySelector('i');
 
     let isDragging = false;
+    let rafId = null;
 
     function formatTime(s) {
-      if (isNaN(s)) return '0:00';
+      if (isNaN(s) || !isFinite(s)) return '0:00';
       const m = Math.floor(s / 60);
       const sec = Math.floor(s % 60);
       return m + ':' + (sec < 10 ? '0' : '') + sec;
     }
 
+    function updateProgress() {
+      if (!audio.duration || isDragging) return;
+      const pct = (audio.currentTime / audio.duration) * 100;
+      progressFilled.style.width = pct + '%';
+      progressThumb.style.left = pct + '%';
+      currentTimeEl.textContent = formatTime(audio.currentTime);
+      if (!audio.paused) rafId = requestAnimationFrame(updateProgress);
+    }
+
     function togglePlay() {
       if (audio.paused) {
-        audio.play();
+        audio.play().catch(() => {});
         playBtn.innerHTML = '<i class="fas fa-pause"></i>';
         playBtn.setAttribute('aria-label', 'Pause');
+        rafId = requestAnimationFrame(updateProgress);
       } else {
         audio.pause();
         playBtn.innerHTML = '<i class="fas fa-play"></i>';
         playBtn.setAttribute('aria-label', 'Play');
+        if (rafId) cancelAnimationFrame(rafId);
       }
     }
 
@@ -220,25 +236,20 @@
       totalTimeEl.textContent = formatTime(audio.duration);
     });
 
-    audio.addEventListener('timeupdate', () => {
-      if (audio.duration) {
-        const pct = (audio.currentTime / audio.duration) * 100;
-        progressFilled.style.width = pct + '%';
-        progressThumb.style.left = pct + '%';
-        currentTimeEl.textContent = formatTime(audio.currentTime);
-      }
-    });
-
     audio.addEventListener('ended', () => {
       playBtn.innerHTML = '<i class="fas fa-play"></i>';
       playBtn.setAttribute('aria-label', 'Play');
       progressFilled.style.width = '0%';
       progressThumb.style.left = '0%';
       currentTimeEl.textContent = '0:00';
+      if (rafId) cancelAnimationFrame(rafId);
     });
 
     document.addEventListener('keydown', (e) => {
-      if (e.code === 'Space' && e.target === document.body) { e.preventDefault(); togglePlay(); }
+      if (e.code === 'Space' && e.target === document.body) {
+        e.preventDefault();
+        togglePlay();
+      }
     });
 
     function setProgress(e) {
@@ -247,18 +258,59 @@
       pct = Math.max(0, Math.min(1, pct));
       progressFilled.style.width = (pct * 100) + '%';
       progressThumb.style.left = (pct * 100) + '%';
-      if (audio.duration) audio.currentTime = pct * audio.duration;
+      currentTimeEl.textContent = formatTime(pct * (audio.duration || 0));
     }
 
-    progressBar.addEventListener('mousedown', (e) => { isDragging = true; setProgress(e); });
-    document.addEventListener('mousemove', (e) => { if (isDragging) setProgress(e); });
-    document.addEventListener('mouseup', () => { isDragging = false; });
+    function commitProgress(e) {
+      const rect = progressBar.getBoundingClientRect();
+      let pct = (e.clientX - rect.left) / rect.width;
+      pct = Math.max(0, Math.min(1, pct));
+      if (audio.duration) {
+        audio.currentTime = pct * audio.duration;
+        if (audio.paused) {
+          progressFilled.style.width = (pct * 100) + '%';
+          progressThumb.style.left = (pct * 100) + '%';
+          currentTimeEl.textContent = formatTime(audio.currentTime);
+        }
+      }
+    }
+
+    progressBar.addEventListener('mousedown', (e) => {
+      isDragging = true;
+      progressBar.classList.add('dragging');
+      document.body.style.userSelect = 'none';
+      setProgress(e);
+    });
+
+    document.addEventListener('mousemove', (e) => {
+      if (isDragging) setProgress(e);
+    });
+
+    document.addEventListener('mouseup', (e) => {
+      if (isDragging) {
+        isDragging = false;
+        progressBar.classList.remove('dragging');
+        document.body.style.userSelect = '';
+        commitProgress(e);
+      }
+    });
+
+    progressBar.addEventListener('click', (e) => {
+      if (!isDragging) commitProgress(e);
+    });
 
     let prevVol = 1;
     volumeBtn.addEventListener('click', () => {
-      if (audio.volume > 0) { prevVol = audio.volume; audio.volume = 0; audioIcon.className = 'fas fa-volume-mute'; }
-      else { audio.volume = prevVol; audioIcon.className = 'fas fa-volume-up'; }
+      if (audio.volume > 0) {
+        prevVol = audio.volume;
+        audio.volume = 0;
+        audioIcon.className = 'fas fa-volume-mute';
+      } else {
+        audio.volume = prevVol || 1;
+        audioIcon.className = audio.volume >= 0.5 ? 'fas fa-volume-up' : 'fas fa-volume-down';
+      }
     });
+
     audio.addEventListener('volumechange', () => {
       if (audio.volume === 0) audioIcon.className = 'fas fa-volume-mute';
       else if (audio.volume < 0.5) audioIcon.className = 'fas fa-volume-down';

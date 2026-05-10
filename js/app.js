@@ -21,72 +21,81 @@
     revealObserver.observe(el);
   });
 
-  // === 3D Tilt on cards ===
-  let tiltTicking = false;
-  document.querySelectorAll('.tilt-card').forEach(card => {
-    const inner = card.querySelector('.tilt-card-inner') || card;
-    card.addEventListener('mousemove', e => {
-      if (tiltTicking) return;
-      tiltTicking = true;
-      requestAnimationFrame(() => {
-        const rect = card.getBoundingClientRect();
-        const x = (e.clientX - rect.left) / rect.width - 0.5;
-        const y = (e.clientY - rect.top) / rect.height - 0.5;
-        inner.style.transform = `perspective(1200px) rotateY(${x * 8}deg) rotateX(${-y * 8}deg)`;
-        tiltTicking = false;
+  // === 3D Tilt on cards (mouse only, disabled on touch) ===
+  if (window.matchMedia('(hover: hover)').matches) {
+    var tiltTicking = false;
+    document.querySelectorAll('.tilt-card').forEach(function(card) {
+      var inner = card.querySelector('.tilt-card-inner') || card;
+      card.addEventListener('mousemove', function(e) {
+        if (tiltTicking) return;
+        tiltTicking = true;
+        requestAnimationFrame(function() {
+          var rect = card.getBoundingClientRect();
+          var x = (e.clientX - rect.left) / rect.width - 0.5;
+          var y = (e.clientY - rect.top) / rect.height - 0.5;
+          inner.style.transform = 'perspective(1200px) rotateY(' + (x * 6) + 'deg) rotateX(' + (-y * 6) + 'deg)';
+          tiltTicking = false;
+        });
+      });
+      card.addEventListener('mouseleave', function() {
+        inner.style.transform = 'perspective(1200px) rotateY(0deg) rotateX(0deg)';
       });
     });
-    card.addEventListener('mouseleave', () => {
-      inner.style.transform = 'perspective(1200px) rotateY(0deg) rotateX(0deg)';
-    });
-  });
+  }
 
-  // === Ripple effect on all buttons ===
-  document.querySelectorAll('.ripple-btn').forEach(btn => {
-    btn.addEventListener('click', function(e) {
-      const rect = this.getBoundingClientRect();
-      const r = document.createElement('span');
-      r.className = 'ripple';
-      const size = Math.max(rect.width, rect.height);
-      r.style.width = r.style.height = size + 'px';
-      r.style.left = (e.clientX - rect.left - size / 2) + 'px';
-      r.style.top = (e.clientY - rect.top - size / 2) + 'px';
-      this.appendChild(r);
-      setTimeout(() => r.remove(), 600);
+  // === Ripple effect (mouse only, disabled on touch) ===
+  if (window.matchMedia('(hover: hover)').matches) {
+    document.querySelectorAll('.ripple-btn').forEach(function(btn) {
+      btn.addEventListener('click', function(e) {
+        var rect = this.getBoundingClientRect();
+        var r = document.createElement('span');
+        r.className = 'ripple';
+        var size = Math.max(rect.width, rect.height);
+        r.style.width = r.style.height = size + 'px';
+        r.style.left = (e.clientX - rect.left - size / 2) + 'px';
+        r.style.top = (e.clientY - rect.top - size / 2) + 'px';
+        this.appendChild(r);
+        setTimeout(function() { r.remove(); }, 600);
+      });
     });
-  });
+  }
 
-  // === Magnetic nav links ===
-  document.querySelectorAll('.nav-links a:not(.join-hub-btn), .logo').forEach(el => {
-    el.addEventListener('mousemove', e => {
-      const rect = el.getBoundingClientRect();
-      const x = (e.clientX - rect.left - rect.width / 2) * 0.15;
-      const y = (e.clientY - rect.top - rect.height / 2) * 0.15;
-      el.style.transform = `translate(${x}px, ${y}px)`;
+  // === Magnetic nav links (mouse only) ===
+  if (window.matchMedia('(hover: hover)').matches) {
+    document.querySelectorAll('.nav-links a:not(.join-hub-btn), .logo').forEach(function(el) {
+      el.addEventListener('mousemove', function(e) {
+        var rect = el.getBoundingClientRect();
+        var x = (e.clientX - rect.left - rect.width / 2) * 0.12;
+        var y = (e.clientY - rect.top - rect.height / 2) * 0.12;
+        el.style.transform = 'translate(' + x + 'px, ' + y + 'px)';
+      });
+      el.addEventListener('mouseleave', function() {
+        el.style.transform = '';
+      });
     });
-    el.addEventListener('mouseleave', () => {
-      el.style.transform = '';
-    });
-  });
+  }
 
-  // === Smooth parallax on elements ===
-  let parallaxTicking = false;
-  document.querySelectorAll('[data-parallax]').forEach(el => {
-    const speed = parseFloat(el.dataset.parallax) || 0.15;
-    window.addEventListener('scroll', () => {
-      if (!parallaxTicking) {
-        requestAnimationFrame(() => {
-          const rect = el.getBoundingClientRect();
-          if (rect.top < window.innerHeight && rect.bottom > 0) {
-            const offset = rect.top * speed;
-            el.style.transform = `translateY(${offset}px)`;
-          }
-          parallaxTicking = false;
-        });
-        parallaxTicking = true;
-      }
-    }, { passive: true });
-  });
+  // === Smooth parallax (disabled on mobile for perf) ===
+  var isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+  if (!isTouch) {
+    var parallaxTicking = false;
+    document.querySelectorAll('[data-parallax]').forEach(function(el) {
+      var speed = parseFloat(el.dataset.parallax) || 0.12;
+      window.addEventListener('scroll', function() {
+        if (!parallaxTicking) {
+          requestAnimationFrame(function() {
+            var rect = el.getBoundingClientRect();
+            if (rect.top < window.innerHeight && rect.bottom > 0) {
+              var offset = rect.top * speed;
+              el.style.transform = 'translateY(' + offset + 'px)';
+            }
+            parallaxTicking = false;
+          });
+          parallaxTicking = true;
+        }
+      }, { passive: true });
+    });
+  }
 
   // === Smooth image blur-up loading ===
   document.querySelectorAll('img.load-blur').forEach(img => {
@@ -171,20 +180,25 @@
 
   resetDropdowns();
 
-  window.addEventListener('resize', () => {
-    if (window.innerWidth > 768) {
-      closeMenu();
-      resetDropdowns();
-    } else {
-      resetDropdowns();
-      const nl = document.getElementById('navLinks');
-      if (nl && nl.classList.contains('active')) {
-        scrollPos = window.scrollY;
-        document.body.style.position = 'fixed';
-        document.body.style.top = `-${scrollPos}px`;
-        document.body.style.width = '100%';
+  var resizeRAF = null;
+  window.addEventListener('resize', function() {
+    if (resizeRAF) cancelAnimationFrame(resizeRAF);
+    resizeRAF = requestAnimationFrame(function() {
+      if (window.innerWidth > 768) {
+        closeMenu();
+        resetDropdowns();
+      } else {
+        resetDropdowns();
+        var nl = document.getElementById('navLinks');
+        if (nl && nl.classList.contains('active')) {
+          scrollPos = window.scrollY;
+          document.body.style.position = 'fixed';
+          document.body.style.top = '-' + scrollPos + 'px';
+          document.body.style.width = '100%';
+        }
       }
-    }
+      resizeRAF = null;
+    });
   });
 
   document.addEventListener('keydown', (e) => {
@@ -286,15 +300,16 @@
   });
 
   // === Page transition on internal links ===
-  document.querySelectorAll('a:not([href^="#"]):not([href^="http"]):not([href^="https"]):not([target="_blank"])').forEach(a => {
-    const href = a.getAttribute('href');
-    if (!href || href.startsWith('#') || href.startsWith('http') || href.startsWith('https') || href.startsWith('mailto') || href.startsWith('tel')) return;
-    a.addEventListener('click', e => {
+  var smoothCB = 'cubic-bezier(0.22, 1, 0.36, 1)';
+  document.querySelectorAll('a:not([href^="#"]):not([href^="http"]):not([href^="https"]):not([target="_blank"])').forEach(function(a) {
+    var href = a.getAttribute('href');
+    if (!href || href.indexOf('#') === 0 || href.indexOf('http') === 0 || href.indexOf('https') === 0 || href.indexOf('mailto') === 0 || href.indexOf('tel') === 0) return;
+    a.addEventListener('click', function(e) {
       e.preventDefault();
       document.body.style.opacity = '0';
-      document.body.style.transform = 'translateY(10px) scale(0.98)';
-      document.body.style.transition = 'opacity 0.35s var(--smooth), transform 0.35s var(--smooth)';
-      setTimeout(() => { window.location.href = href; }, 350);
+      document.body.style.transform = 'translateY(8px) scale(0.98)';
+      document.body.style.transition = 'opacity 0.3s ' + smoothCB + ', transform 0.3s ' + smoothCB;
+      setTimeout(function() { window.location.href = href; }, 320);
     });
   });
 

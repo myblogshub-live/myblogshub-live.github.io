@@ -302,15 +302,19 @@
   // === Disable right-click context menu ===
   document.addEventListener('contextmenu', (e) => e.preventDefault());
 
-  // === Disable view-source shortcuts ===
+  // === Disable view-source & DevTools shortcuts ===
   document.addEventListener('keydown', (e) => {
+    const k = e.key.toLowerCase();
     if (
-      e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C') ||
-      e.ctrlKey && e.key === 'u' ||
-      e.key === 'F12'
+      (e.ctrlKey && e.shiftKey && (k === 'i' || k === 'j' || k === 'c')) ||
+      (e.ctrlKey && k === 'u') ||
+      e.key === 'F12' || e.keyCode === 123
     ) {
       e.preventDefault();
+      e.stopPropagation();
+      e.returnValue = false;
+      return false;
     }
-  });
+  }, { capture: true });
 
 })();

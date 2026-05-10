@@ -224,105 +224,86 @@
         localStorage.setItem('podcast_img', ep.img);
         localStorage.setItem('podcast_audio', ep.audio);
         localStorage.setItem('podcast_time', audio.currentTime);
-        localStorage.setItem('podcast_playing', (_state === 'playing' || _state === 'loading') ? '1' : '0');
+        localStorage.setItem('podcast_playing', (_playReq && !audio.paused) ? '1' : '0');
       } catch(e) {}
     }
     window.addEventListener('pagehide', saveState);
     window.addEventListener('beforeunload', saveState);
     setInterval(saveState, 1000);
 
-    // Preload audio for instant play on first click
-    audio.src = ep.audio;
-    audio.load();
-
-    // Store seek position — apply AFTER play, not during preload (avoids seeking bug)
+    // Store seek position for later use
     var _seekTo = null;
     var _savedId = parseInt(localStorage.getItem('podcast_id'), 10);
     if (_savedId === id) {
       var _t = parseFloat(localStorage.getItem('podcast_time'));
       if (_t > 0) _seekTo = _t;
     }
+    var _playReq = false;
 
-    var _state = 'idle';
+    function setUILoading() {
+      playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+      playBtn.setAttribute('aria-label', 'Pause');
+    }
+    function setUIPlaying() {
+      playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+      playBtn.setAttribute('aria-label', 'Pause');
+      rafId = requestAnimationFrame(updateProgress);
+    }
+    function setUIPaused() {
+      playBtn.innerHTML = '<i class="fas fa-play"></i>';
+      playBtn.setAttribute('aria-label', 'Play');
+      if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+    }
 
-    function _setState(s) {
-      _state = s;
-      if (s === 'playing') {
-        playBtn.innerHTML = '<i class="fas fa-pause"></i>';
-        playBtn.setAttribute('aria-label', 'Pause');
-        rafId = requestAnimationFrame(updateProgress);
-      } else if (s === 'loading') {
-        playBtn.innerHTML = '<i class="fas fa-pause"></i>';
-        playBtn.setAttribute('aria-label', 'Pause');
-      } else {
-        playBtn.innerHTML = '<i class="fas fa-play"></i>';
-        playBtn.setAttribute('aria-label', 'Play');
-        if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+    playBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      if (_playReq) {
+        _playReq = false;
+        audio.pause();
+        setUIPaused();
+        saveState();
+        return;
       }
-      saveState();
-    }
-
-    function _playAttempt() {
-      audio.play().then(function() {
-        if (_seekTo && _seekTo < (audio.duration || 1e8)) audio.currentTime = _seekTo;
-        _seekTo = null;
-        _setState('playing');
-      }).catch(function() {
-        if (audio.readyState >= 2) {
-          audio.play().then(function() {
-            if (_seekTo && _seekTo < (audio.duration || 1e8)) audio.currentTime = _seekTo;
-            _seekTo = null;
-            _setState('playing');
-          }).catch(function() { _setState('idle'); });
-        } else {
-          audio.load();
-          var to = setTimeout(function() {
-            audio.removeEventListener('canplay', h);
-            if (_state === 'loading') _playAttempt();
-          }, 2000);
-          var h = function() {
-            clearTimeout(to);
-            audio.removeEventListener('canplay', h);
-            if (_state === 'loading') _playAttempt();
-          };
-          audio.addEventListener('canplay', h, { once: true });
-        }
-      });
-    }
-
-    function _startPlay() {
-      _setState('loading');
+      _playReq = true;
+      setUILoading();
       localStorage.setItem('podcast_id', id);
       localStorage.setItem('podcast_title', ep.title);
       localStorage.setItem('podcast_img', ep.img);
       localStorage.setItem('podcast_audio', ep.audio);
       localStorage.setItem('podcast_time', '0');
       localStorage.setItem('podcast_playing', '1');
-      _playAttempt();
-    }
+      saveState();
+      if (!audio.src || audio.src === window.location.href) {
+        audio.src = ep.audio;
+        audio.load();
+      }
+      audio.play();
+    });
 
-    function togglePlay() {
-      if (_state === 'playing') { audio.pause(); _setState('paused'); return; }
-      if (_state === 'paused') { _setState('playing'); _playAttempt(); return; }
-      if (_state === 'loading') { _state = 'idle'; _setState('idle'); return; }
-      _startPlay();
-    }
-
-    playBtn.addEventListener('click', togglePlay);
     if (audio.readyState >= 1) totalTimeEl.textContent = formatTime(audio.duration);
     audio.addEventListener('loadedmetadata', function () { totalTimeEl.textContent = formatTime(audio.duration); });
 
+    audio.addEventListener('play', function() {
+      if (_seekTo && _seekTo < (audio.duration || 1e8)) audio.currentTime = _seekTo;
+      _seekTo = null;
+      setUIPlaying();
+    });
+    audio.addEventListener('pause', function() {
+      if (!_playReq) setUIPaused();
+      saveState();
+    });
     audio.addEventListener('ended', function () {
-      _setState('idle');
+      _playReq = false;
       progressFilled.style.width = '0%';
       progressThumb.style.left = '0%';
       currentTimeEl.textContent = '0:00';
+      setUIPaused();
     });
 
     document.addEventListener('keydown', (e) => {
       if (e.code === 'Space' && e.target === document.body) {
         e.preventDefault();
-        togglePlay();
+        playBtn.click();
       }
     });
 

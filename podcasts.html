@@ -111,18 +111,18 @@
   <script src="js/app.js"></script>
   <script>
     const allPodcasts = [
-      { title:'The Future of AI Assistants', category:'technology', img:'https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=800&q=80', desc:'How AI is reshaping personal productivity and daily life.', meta:'Technology · 32 min' },
-      { title:'Slow Living in a Fast World', category:'lifestyle', img:'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=800&q=80', desc:'Practical steps to embrace mindfulness and simplicity.', meta:'Lifestyle · 28 min' },
-      { title:'Design Thinking at Scale', category:'design', img:'https://images.unsplash.com/photo-1558655146-9f40138edfeb?auto=format&fit=crop&w=800&q=80', desc:'How large organizations implement human-centered design.', meta:'Design · 41 min' },
-      { title:'The Culture of Remote Work', category:'culture', img:'https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=800&q=80', desc:'Navigating identity and belonging in distributed teams.', meta:'Culture · 35 min' },
-      { title:'Deep Focus Habits', category:'productivity', img:'https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?auto=format&fit=crop&w=800&q=80', desc:'Mastering the art of concentrated work in a distracted age.', meta:'Productivity · 22 min' },
-      { title:'The Art of Podcasting', category:'design', img:'https://images.unsplash.com/photo-1561070791-2526d30994b5?auto=format&fit=crop&w=800&q=80', desc:'Behind the scenes of creating a successful audio series.', meta:'Design · 38 min' },
-      { title:'Ethical Entrepreneurship', category:'technology', img:'https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=800&q=80', desc:'Building a startup that balances profit and purpose.', meta:'Technology · 29 min' },
-      { title:'Culinary Adventures', category:'lifestyle', img:'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?auto=format&fit=crop&w=800&q=80', desc:'Exploring global cuisines and the stories behind them.', meta:'Lifestyle · 42 min' },
-      { title:'Urban Planning Reimagined', category:'design', img:'https://images.unsplash.com/photo-1516483638261-f4dbaf036963?auto=format&fit=crop&w=800&q=80', desc:'How cities are being designed for people, not cars.', meta:'Design · 31 min' },
-      { title:'The Sound of Culture', category:'culture', img:'https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?auto=format&fit=crop&w=800&q=80', desc:'How music and podcasts are shaping modern culture.', meta:'Culture · 27 min' },
-      { title:'Mindful Productivity', category:'productivity', img:'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=800&q=80', desc:'Combining mindfulness techniques with peak performance.', meta:'Productivity · 25 min' },
-      { title:'Green Technology Trends', category:'technology', img:'https://images.unsplash.com/photo-1588196749597-9ff075ee6b5b?auto=format&fit=crop&w=800&q=80', desc:'Innovations that are driving sustainability forward.', meta:'Technology · 33 min' }
+      { id:0, title:'The Future of AI Assistants', category:'technology', img:'https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=800&q=80', desc:'How AI is reshaping personal productivity and daily life.', meta:'Technology · 32 min' },
+      { id:1, title:'Slow Living in a Fast World', category:'lifestyle', img:'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=800&q=80', desc:'Practical steps to embrace mindfulness and simplicity.', meta:'Lifestyle · 28 min' },
+      { id:2, title:'Design Thinking at Scale', category:'design', img:'https://images.unsplash.com/photo-1558655146-9f40138edfeb?auto=format&fit=crop&w=800&q=80', desc:'How large organizations implement human-centered design.', meta:'Design · 41 min' },
+      { id:3, title:'The Culture of Remote Work', category:'culture', img:'https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=800&q=80', desc:'Navigating identity and belonging in distributed teams.', meta:'Culture · 35 min' },
+      { id:4, title:'Deep Focus Habits', category:'productivity', img:'https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?auto=format&fit=crop&w=800&q=80', desc:'Mastering the art of concentrated work in a distracted age.', meta:'Productivity · 22 min' },
+      { id:5, title:'The Art of Podcasting', category:'design', img:'https://images.unsplash.com/photo-1561070791-2526d30994b5?auto=format&fit=crop&w=800&q=80', desc:'Behind the scenes of creating a successful audio series.', meta:'Design · 38 min' },
+      { id:6, title:'Ethical Entrepreneurship', category:'technology', img:'https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=800&q=80', desc:'Building a startup that balances profit and purpose.', meta:'Technology · 29 min' },
+      { id:7, title:'Culinary Adventures', category:'lifestyle', img:'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?auto=format&fit=crop&w=800&q=80', desc:'Exploring global cuisines and the stories behind them.', meta:'Lifestyle · 42 min' },
+      { id:8, title:'Urban Planning Reimagined', category:'design', img:'https://images.unsplash.com/photo-1516483638261-f4dbaf036963?auto=format&fit=crop&w=800&q=80', desc:'How cities are being designed for people, not cars.', meta:'Design · 31 min' },
+      { id:9, title:'The Sound of Culture', category:'culture', img:'https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?auto=format&fit=crop&w=800&q=80', desc:'How music and podcasts are shaping modern culture.', meta:'Culture · 27 min' },
+      { id:10, title:'Mindful Productivity', category:'productivity', img:'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=800&q=80', desc:'Combining mindfulness techniques with peak performance.', meta:'Productivity · 25 min' },
+      { id:11, title:'Green Technology Trends', category:'technology', img:'https://images.unsplash.com/photo-1588196749597-9ff075ee6b5b?auto=format&fit=crop&w=800&q=80', desc:'Innovations that are driving sustainability forward.', meta:'Technology · 33 min' }
     ];
 
     let currentCategory = 'all';
@@ -143,7 +143,7 @@
             <span class="card-meta">${p.meta}</span>
             <h2 class="card-title">${p.title}</h2>
             <p class="card-desc">${p.desc}</p>
-            <a href="#" class="card-link">Listen Now <i class="fas fa-play"></i></a>
+            <a href="podcast-detail.html?id=${p.id}" class="card-link">Listen Now <i class="fas fa-play"></i></a>
           </div>
         </article>
       `).join('');

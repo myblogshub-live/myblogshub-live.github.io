@@ -185,8 +185,9 @@
     document.getElementById('podcastDesc').textContent = ep.desc;
 
     const audio = document.getElementById('audioEl');
+    audio.preload = 'auto';
     audio.src = ep.audio;
-    audio.preload = 'metadata';
+    audio.load();
 
     const playBtn = document.getElementById('playBtn');
     const progressBar = document.getElementById('progressBar');
@@ -199,6 +200,7 @@
 
     let isDragging = false;
     let rafId = null;
+    let playLoading = false;
 
     function formatTime(s) {
       if (isNaN(s) || !isFinite(s)) return '0:00';
@@ -216,33 +218,39 @@
       if (!audio.paused) rafId = requestAnimationFrame(updateProgress);
     }
 
-    let loadingAudio = false;
+    function doPlay() {
+      playLoading = false;
+      playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+      playBtn.setAttribute('aria-label', 'Pause');
+      rafId = requestAnimationFrame(updateProgress);
+    }
 
     function togglePlay() {
-      if (loadingAudio) return;
+      if (playLoading) return;
       if (audio.paused) {
-        audio.play().then(() => {
-          playBtn.innerHTML = '<i class="fas fa-pause"></i>';
-          playBtn.setAttribute('aria-label', 'Pause');
-          rafId = requestAnimationFrame(updateProgress);
-        }).catch(() => {
-          loadingAudio = true;
+        playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+        playBtn.setAttribute('aria-label', 'Pause');
+        audio.play().then(doPlay).catch(() => {
+          if (audio.readyState >= 2) {
+            audio.play().then(doPlay).catch(() => { playBtn.innerHTML = '<i class="fas fa-play"></i>'; playBtn.setAttribute('aria-label', 'Play'); });
+            return;
+          }
+          playLoading = true;
           playBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>';
           audio.load();
-          audio.addEventListener('canplay', function onReady() {
-            audio.removeEventListener('canplay', onReady);
-            loadingAudio = false;
-            if (audio.paused) return;
-            audio.play().then(() => {
-              playBtn.innerHTML = '<i class="fas fa-pause"></i>';
-              playBtn.setAttribute('aria-label', 'Pause');
-              rafId = requestAnimationFrame(updateProgress);
-            }).catch(() => {
-              playBtn.innerHTML = '<i class="fas fa-play"></i>';
-              playBtn.setAttribute('aria-label', 'Play');
-              loadingAudio = false;
-            });
-          });
+          var tick = setInterval(function () {
+            if (audio.readyState >= 2 || audio.currentTime > 0) {
+              clearInterval(tick);
+              playLoading = false;
+              if (!audio.paused) return;
+              audio.play().then(doPlay).catch(function () {
+                playBtn.innerHTML = '<i class="fas fa-play"></i>';
+                playBtn.setAttribute('aria-label', 'Play');
+                playLoading = false;
+              });
+            }
+          }, 30);
+          setTimeout(function () { clearInterval(tick); playLoading = false; }, 8000);
         });
       } else {
         audio.pause();
@@ -253,11 +261,10 @@
     }
 
     playBtn.addEventListener('click', togglePlay);
-
-    audio.addEventListener('loadedmetadata', () => {
+    if (audio.readyState >= 1) totalTimeEl.textContent = formatTime(audio.duration);
+    audio.addEventListener('loadedmetadata', function () {
       totalTimeEl.textContent = formatTime(audio.duration);
     });
-    if (audio.readyState >= 1) totalTimeEl.textContent = formatTime(audio.duration);
 
     audio.addEventListener('ended', () => {
       playBtn.innerHTML = '<i class="fas fa-play"></i>';

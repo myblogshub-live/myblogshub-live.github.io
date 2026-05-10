@@ -239,6 +239,7 @@
       if (_t > 0) _seekTo = _t;
     }
     var _playReq = false;
+    var _everStarted = false;
 
     function setUILoading() {
       playBtn.innerHTML = '<i class="fas fa-pause"></i>';
@@ -257,14 +258,20 @@
 
     playBtn.addEventListener('click', function(e) {
       e.stopPropagation();
-      if (_playReq) {
+      if (_playReq && _everStarted) {
         _playReq = false;
         audio.pause();
         setUIPaused();
         saveState();
         return;
       }
+      if (_playReq && !_everStarted) {
+        audio.load();
+        audio.play();
+        return;
+      }
       _playReq = true;
+      _everStarted = false;
       setUILoading();
       sessionStorage.setItem('mbh-played', '1');
       localStorage.setItem('podcast_id', id);
@@ -285,6 +292,7 @@
     audio.addEventListener('loadedmetadata', function () { totalTimeEl.textContent = formatTime(audio.duration); });
 
     audio.addEventListener('play', function() {
+      _everStarted = true;
       if (_seekTo && _seekTo < (audio.duration || 1e8)) audio.currentTime = _seekTo;
       _seekTo = null;
       setUIPlaying();

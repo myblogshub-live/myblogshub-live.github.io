@@ -294,14 +294,7 @@
     localStorage.setItem('podcast_time', a.currentTime);
     localStorage.setItem('podcast_playing', !a.paused ? '1' : '0');
   } catch(ex){} }, 1000);
-  if (wasPlaying) {
-    a.addEventListener('canplay', function(){
-      a.play().then(function(){ if (ct > 0 && ct < a.duration) a.currentTime = ct; ct = 0; setUI(true); raf = requestAnimationFrame(updateProg); }).catch(function(){ setUI(false); });
-    }, { once: true });
-    a.load();
-  } else {
-    setUI(false);
-  }
+  setUI(false);
   var prog = el ? el.querySelector('.mini-progress') : null;
   if (prog) {
     prog.addEventListener('click', function(e){

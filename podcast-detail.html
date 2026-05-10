@@ -238,6 +238,9 @@
       var _t = parseFloat(localStorage.getItem('podcast_time'));
       if (_t > 0) _seekTo = _t;
     }
+    // Preload audio on page load for instant play
+    audio.src = ep.audio;
+    audio.load();
     var _playReq = false;
     var _everStarted = false;
 

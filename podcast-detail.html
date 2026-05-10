@@ -228,8 +228,9 @@
         sessionStorage.setItem('podcast_playing', !audio.paused ? 'true' : 'false');
       } catch(e) {}
     }
-    setInterval(saveSession, 1000);
+    window.addEventListener('pagehide', saveSession);
     window.addEventListener('beforeunload', saveSession);
+    setInterval(saveSession, 1000);
 
     var savedId = parseInt(sessionStorage.getItem('podcast_id'), 10);
     if (savedId === id) {
@@ -241,12 +242,14 @@
       playBtn.innerHTML = '<i class="fas fa-pause"></i>';
       playBtn.setAttribute('aria-label', 'Pause');
       rafId = requestAnimationFrame(updateProgress);
+      saveSession();
     }
 
     function setUIPaused() {
       playBtn.innerHTML = '<i class="fas fa-play"></i>';
       playBtn.setAttribute('aria-label', 'Play');
       if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+      saveSession();
     }
 
     // === Pre-fetch audio into memory for instant playback ===

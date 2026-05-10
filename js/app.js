@@ -292,6 +292,13 @@
     a.addEventListener('click', e => {
       e.preventDefault();
       const dest = href;
+      try {
+        var pa = document.getElementById('audioEl');
+        if (pa && pa.src && sessionStorage.getItem('podcast_id') !== null) {
+          sessionStorage.setItem('podcast_current_time', pa.currentTime);
+          sessionStorage.setItem('podcast_playing', !pa.paused ? 'true' : 'false');
+        }
+      } catch(ex) {}
       document.body.style.opacity = '0';
       document.body.style.transform = 'translateY(10px) scale(0.98)';
       document.body.style.transition = 'opacity 0.35s var(--smooth), transform 0.35s var(--smooth)';
@@ -348,7 +355,11 @@
 
     var miniAudio = new Audio(audioUrl);
     miniAudio.preload = 'auto';
-    miniAudio.currentTime = currentTime;
+    if (currentTime > 0) {
+      miniAudio.addEventListener('loadedmetadata', function onMeta() {
+        if (miniAudio.duration && currentTime < miniAudio.duration) miniAudio.currentTime = currentTime;
+      }, { once: true });
+    }
 
     var miniPlayBtn = document.getElementById('miniPlayBtn');
     var miniStatus = document.getElementById('miniStatus');

@@ -224,7 +224,7 @@
         localStorage.setItem('podcast_img', ep.img);
         localStorage.setItem('podcast_audio', ep.audio);
         localStorage.setItem('podcast_time', audio.currentTime);
-        localStorage.setItem('podcast_playing', _playing ? '1' : '0');
+        localStorage.setItem('podcast_playing', (_state === 'playing' || _state === 'loading') ? '1' : '0');
       } catch(e) {}
     }
     window.addEventListener('pagehide', saveState);
@@ -237,87 +237,75 @@
       if (t > 0 && t < (audio.duration || 1e8)) audio.currentTime = t;
     }
 
-    function setUIPlaying() {
-      playBtn.innerHTML = '<i class="fas fa-pause"></i>';
-      playBtn.setAttribute('aria-label', 'Pause');
-      rafId = requestAnimationFrame(updateProgress);
-      saveState();
-    }
-
-    function setUIPaused() {
-      playBtn.innerHTML = '<i class="fas fa-play"></i>';
-      playBtn.setAttribute('aria-label', 'Play');
-      if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
-      saveState();
-    }
-
-    // Set src immediately so play() works on first click
-    var originalSrc = ep.audio;
-    audio.src = originalSrc;
+    // Don't set src on load — set on first gesture
+    audio.removeAttribute('src');
     audio.load();
 
-    var _playing = false;
-    var _playTimer = null;
+    var _state = 'idle';
 
-    function _stopPlayTimer() {
-      if (_playTimer) { clearTimeout(_playTimer); _playTimer = null; }
-    }
-
-    function _doPlay() {
-      _stopPlayTimer();
-      var p = audio.play();
-      if (!p) { setUIPlaying(); _playing = true; return; }
-      p.then(function() { setUIPlaying(); _playing = true; }).catch(function() {
-        var handler = function() {
-          if (!_playing) return;
-          audio.play().then(function() { setUIPlaying(); _playing = true; }).catch(function() { _playing = false; setUIPaused(); });
-        };
-        audio.addEventListener('canplay', handler, { once: true });
-        audio.load();
-        _playTimer = setTimeout(function() {
-          audio.removeEventListener('canplay', handler);
-          if (_playing) { audio.play().then(function(){ setUIPlaying(); }).catch(function(){ _playing = false; setUIPaused(); }); }
-        }, 3000);
-      });
+    function _setState(s) {
+      _state = s;
+      if (s === 'playing') {
+        playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+        playBtn.setAttribute('aria-label', 'Pause');
+        rafId = requestAnimationFrame(updateProgress);
+      } else if (s === 'loading') {
+        playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+        playBtn.setAttribute('aria-label', 'Pause');
+      } else {
+        playBtn.innerHTML = '<i class="fas fa-play"></i>';
+        playBtn.setAttribute('aria-label', 'Play');
+        if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+      }
+      saveState();
     }
 
     function togglePlay() {
-      if (_playing) {
-        _playing = false;
-        _stopPlayTimer();
+      if (_state === 'playing') {
         audio.pause();
-        setUIPaused();
+        _setState('paused');
         return;
       }
-      _playing = true;
-      playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+      if (_state === 'paused') {
+        _setState('playing');
+        audio.play().then(function() { _setState('playing'); }).catch(function() { _setState('paused'); });
+        return;
+      }
+      if (_state === 'loading') {
+        _setState('idle');
+        return;
+      }
+      // idle → loading
+      audio.src = ep.audio;
+      audio.load();
+      _setState('loading');
       localStorage.setItem('podcast_id', id);
       localStorage.setItem('podcast_title', ep.title);
       localStorage.setItem('podcast_img', ep.img);
       localStorage.setItem('podcast_audio', ep.audio);
-      localStorage.setItem('podcast_time', audio.currentTime);
+      localStorage.setItem('podcast_time', '0');
       localStorage.setItem('podcast_playing', '1');
-      if (audio.readyState >= 2) { _doPlay(); return; }
-      var handler = function() {
-        if (!_playing) return;
-        audio.play().then(function() { setUIPlaying(); _playing = true; }).catch(function() { _playing = false; setUIPaused(); });
+      var played = false;
+      var canplayFn = function() {
+        if (_state !== 'loading') return;
+        played = true;
+        audio.play().then(function() { _setState('playing'); }).catch(function() { _setState('idle'); });
       };
-      audio.addEventListener('canplay', handler, { once: true });
-      audio.load();
-      _playTimer = setTimeout(function() {
-        audio.removeEventListener('canplay', handler);
-        if (_playing) { audio.play().then(function(){ setUIPlaying(); }).catch(function(){ _playing = false; setUIPaused(); }); }
-      }, 3000);
+      audio.addEventListener('canplay', canplayFn, { once: true });
+      setTimeout(function() {
+        audio.removeEventListener('canplay', canplayFn);
+        if (_state !== 'loading') return;
+        if (played) return;
+        audio.play().then(function() { _setState('playing'); }).catch(function() { _setState('idle'); });
+      }, 4000);
     }
 
     playBtn.addEventListener('click', togglePlay);
-    playBtn.addEventListener('touchstart', function(){ audio.load(); }, { passive: true });
     if (audio.readyState >= 1) totalTimeEl.textContent = formatTime(audio.duration);
     audio.addEventListener('loadedmetadata', function () { totalTimeEl.textContent = formatTime(audio.duration); });
 
     audio.addEventListener('ended', function () {
-      _playing = false;
-      setUIPaused();
+      _setState('idle');
       progressFilled.style.width = '0%';
       progressThumb.style.left = '0%';
       currentTimeEl.textContent = '0:00';

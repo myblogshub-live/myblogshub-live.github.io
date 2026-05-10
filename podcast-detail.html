@@ -265,6 +265,28 @@
       saveState();
     }
 
+    function _playDirect() {
+      audio.play().then(function() { _setState('playing'); }).catch(function() {
+        _retryPlay();
+      });
+    }
+
+    function _retryPlay() {
+      if (audio.readyState >= 2) {
+        audio.play().then(function() { _setState('playing'); }).catch(function() { _setState('idle'); });
+        return;
+      }
+      audio.load();
+      var h = function() {
+        audio.play().then(function() { _setState('playing'); }).catch(function() { _setState('idle'); });
+      };
+      audio.addEventListener('canplay', h, { once: true });
+      setTimeout(function() {
+        audio.removeEventListener('canplay', h);
+        if (_state === 'loading') { audio.play().then(function(){ _setState('playing'); }).catch(function(){ _setState('idle'); }); }
+      }, 1500);
+    }
+
     function _startPlay() {
       _setState('loading');
       localStorage.setItem('podcast_id', id);
@@ -273,21 +295,12 @@
       localStorage.setItem('podcast_audio', ep.audio);
       localStorage.setItem('podcast_time', '0');
       localStorage.setItem('podcast_playing', '1');
-      audio.play().then(function() { _setState('playing'); }).catch(function() {
-        var h = function() {
-          audio.play().then(function() { _setState('playing'); }).catch(function() { _setState('idle'); });
-        };
-        audio.addEventListener('canplay', h, { once: true });
-        setTimeout(function() {
-          audio.removeEventListener('canplay', h);
-          if (_state === 'loading') { audio.play().then(function(){ _setState('playing'); }).catch(function(){ _setState('idle'); }); }
-        }, 4000);
-      });
+      _playDirect();
     }
 
     function togglePlay() {
       if (_state === 'playing') { audio.pause(); _setState('paused'); return; }
-      if (_state === 'paused') { _setState('playing'); audio.play().then(function(){ _setState('playing'); }).catch(function(){ _setState('paused'); }); return; }
+      if (_state === 'paused') { _setState('playing'); _playDirect(); return; }
       if (_state === 'loading') return;
       _startPlay();
     }

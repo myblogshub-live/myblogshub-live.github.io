@@ -59,6 +59,8 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   min-height: 100vh;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 .container { max-width: 1400px; margin: 0 auto; padding: 0 40px; width: 100%; }
@@ -565,6 +567,12 @@ header.hidden {
 
 .tilt-card .card-link {
   transform: translateZ(25px);
+}
+
+/* Allow copy on blog content */
+.post-body, .blogs-grid, .blog-card, .card-content {
+  -webkit-user-select: text;
+  user-select: text;
 }
 
 /* Card styles */

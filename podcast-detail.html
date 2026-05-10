@@ -117,7 +117,7 @@
               <span id="podcastDuration"><i class="far fa-clock"></i></span>
             </div>
 
-            <div class="audio-player">
+            <div class="audio-player" id="fullPlayer">
               <audio id="audioEl" preload="auto"></audio>
               <div class="player-controls">
                 <button class="player-btn" id="playBtn" aria-label="Play"><i class="fas fa-play"></i></button>
@@ -216,16 +216,39 @@
       if (!audio.paused) rafId = requestAnimationFrame(updateProgress);
     }
 
+    // === Save/restore playback state across pages ===
+    function saveSession() {
+      try {
+        sessionStorage.setItem('podcast_id', id);
+        sessionStorage.setItem('podcast_title', ep.title);
+        sessionStorage.setItem('podcast_img', ep.img);
+        sessionStorage.setItem('podcast_audio', ep.audio);
+        sessionStorage.setItem('podcast_time', audio.currentTime);
+        sessionStorage.setItem('podcast_playing', !audio.paused ? '1' : '0');
+      } catch(e) {}
+    }
+    window.addEventListener('pagehide', saveSession);
+    window.addEventListener('beforeunload', saveSession);
+    setInterval(saveSession, 1000);
+
+    var savedId = parseInt(sessionStorage.getItem('podcast_id'), 10);
+    if (savedId === id) {
+      var t = parseFloat(sessionStorage.getItem('podcast_time'));
+      if (t > 0) audio.currentTime = t;
+    }
+
     function setUIPlaying() {
       playBtn.innerHTML = '<i class="fas fa-pause"></i>';
       playBtn.setAttribute('aria-label', 'Pause');
       rafId = requestAnimationFrame(updateProgress);
+      saveSession();
     }
 
     function setUIPaused() {
       playBtn.innerHTML = '<i class="fas fa-play"></i>';
       playBtn.setAttribute('aria-label', 'Play');
       if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+      saveSession();
     }
 
     // Set src immediately so play() works on first click
@@ -247,6 +270,12 @@
 
     function tryPlay() {
       playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+      sessionStorage.setItem('podcast_id', id);
+      sessionStorage.setItem('podcast_title', ep.title);
+      sessionStorage.setItem('podcast_img', ep.img);
+      sessionStorage.setItem('podcast_audio', ep.audio);
+      sessionStorage.setItem('podcast_time', audio.currentTime);
+      sessionStorage.setItem('podcast_playing', '1');
       audio.play().then(setUIPlaying).catch(function () {
         var tick = setInterval(function () {
           if (audio.readyState >= 2 || audio.currentTime > 0) {
@@ -372,6 +401,68 @@
       grid.appendChild(card);
     });
   </script>
+
+<div class="mini-player" id="miniPlayer">
+  <div class="mini-progress-wrap"><div class="mini-progress"><div class="mini-progress-filled" id="miniProgressFilled"></div></div></div>
+  <div class="mini-player-inner">
+    <img class="mini-cover" id="miniImg" src="" alt="">
+    <div class="mini-info">
+      <span class="mini-title" id="miniTitle"></span>
+      <span class="mini-status" id="miniStatus">Paused</span>
+    </div>
+    <div class="mini-controls">
+      <button class="mini-close" id="miniCloseBtn" aria-label="Close Podcast"><i class="fas fa-times"></i></button>
+      <button id="miniPlayBtn" aria-label="Play"><i class="fas fa-play"></i></button>
+    </div>
+  </div>
+</div>
+
+<script>
+// === Mini Player: persists audio across pages ===
+(function(){
+  var mp = document.getElementById('miniPlayer');
+  if (!mp) return;
+  var isFull = document.getElementById('fullPlayer');
+
+  // Save podcast state whenever play state changes
+  var audio = document.getElementById('audioEl');
+  if (audio) {
+    audio.addEventListener('play', function(){ mpSave(); });
+    audio.addEventListener('pause', function(){ mpSave(); });
+    audio.addEventListener('timeupdate', function(){ mpSave(); });
+  }
+  window.addEventListener('pagehide', function(){ mpSave(); });
+  window.addEventListener('beforeunload', function(){ mpSave(); });
+
+  // Restore position from sessionStorage
+  try {
+    var sid = parseInt(sessionStorage.getItem('podcast_id'), 10);
+    var params = new URLSearchParams(window.location.search);
+    var cid = parseInt(params.get('id'), 10);
+    if (sid === cid && audio) {
+      var t = parseFloat(sessionStorage.getItem('podcast_time'));
+      if (t > 0 && t < 1e8) audio.currentTime = t;
+    }
+  } catch(e){}
+})();
+
+function mpSave() {
+  try {
+    var a = document.getElementById('audioEl');
+    if (!a || !a.src) return;
+    var p = new URLSearchParams(window.location.search);
+    var id = p.get('id');
+    if (id === null) return;
+    var ep = window.podcastData ? window.podcastData[parseInt(id)] : null;
+    sessionStorage.setItem('podcast_id', id);
+    sessionStorage.setItem('podcast_title', document.getElementById('podcastTitle')?.textContent || '');
+    sessionStorage.setItem('podcast_img', document.getElementById('podcastCover')?.src || '');
+    sessionStorage.setItem('podcast_audio', ep ? ep.audio : '');
+    sessionStorage.setItem('podcast_time', a.currentTime);
+    sessionStorage.setItem('podcast_playing', !a.paused ? '1' : '0');
+  } catch(e){}
+}
+</script>
 
 </body>
 </html>

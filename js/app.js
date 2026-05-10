@@ -285,11 +285,17 @@
     });
   });
 
-  // === Page transition on internal links ===
+  // === Page transition: open in new tab if audio playing ===
   document.querySelectorAll('a:not([href^="#"]):not([href^="http"]):not([href^="https"]):not([target="_blank"])').forEach(a => {
     const href = a.getAttribute('href');
     if (!href || href.startsWith('#') || href.startsWith('http') || href.startsWith('https') || href.startsWith('mailto') || href.startsWith('tel')) return;
     a.addEventListener('click', e => {
+      var pa = document.getElementById('audioEl');
+      if (pa && pa.src && !pa.paused) {
+        e.preventDefault();
+        window.open(href, '_blank');
+        return;
+      }
       e.preventDefault();
       document.body.style.opacity = '0';
       document.body.style.transform = 'translateY(10px) scale(0.98)';

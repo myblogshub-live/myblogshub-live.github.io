@@ -252,43 +252,41 @@
       saveSession();
     }
 
-    // === Pre-fetch audio into memory for instant playback ===
+    // Set src immediately so play() works on first click
     var originalSrc = ep.audio;
+    audio.src = originalSrc;
+    audio.load();
 
-    function tryPlay(src, first) {
-      if (first) playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+    // Upgrade to blob URL when fetch completes (instant playback)
+    fetch(ep.audio, { cache: 'force-cache' })
+      .then(function (r) { if (!r.ok) throw Error(); return r.blob(); })
+      .then(function (blob) {
+        if (!audio.paused) return;
+        var old = audio.src;
+        audio.src = URL.createObjectURL(blob);
+        audio.load();
+        if (old && old.startsWith('blob:')) URL.revokeObjectURL(old);
+      })
+      .catch(function () { /* keep using originalSrc */ });
+
+    function tryPlay() {
+      playBtn.innerHTML = '<i class="fas fa-pause"></i>';
       audio.play().then(setUIPlaying).catch(function () {
-        if (!first) return;
-        playBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>';
-        if (audio.src !== src) { audio.src = src; audio.load(); }
         var tick = setInterval(function () {
           if (audio.readyState >= 2 || audio.currentTime > 0) {
             clearInterval(tick);
             if (audio.paused) return;
             audio.play().then(setUIPlaying).catch(setUIPaused);
           }
-        }, 20);
+        }, 50);
         setTimeout(function () { clearInterval(tick); setUIPaused(); }, 8000);
       });
     }
 
     function togglePlay() {
-      if (audio.paused) tryPlay(originalSrc, true);
+      if (audio.paused) tryPlay();
       else { audio.pause(); setUIPaused(); }
     }
-
-    // Start fetching audio as blob for zero-delay playback
-    fetch(ep.audio, { cache: 'force-cache' })
-      .then(function (r) { if (!r.ok) throw Error(); return r.blob(); })
-      .then(function (blob) {
-        var url = URL.createObjectURL(blob);
-        audio.src = url;
-        audio.load();
-      })
-      .catch(function () {
-        audio.src = originalSrc;
-        audio.load();
-      });
 
     playBtn.addEventListener('click', togglePlay);
     if (audio.readyState >= 1) totalTimeEl.textContent = formatTime(audio.duration);

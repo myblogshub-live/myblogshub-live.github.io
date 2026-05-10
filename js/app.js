@@ -317,4 +317,101 @@
     }
   }, { capture: true });
 
+  // === Persistent Mini Player across pages ===
+  (function() {
+    try { var pid = sessionStorage.getItem('podcast_id'); } catch(e) { return; }
+    if (pid === null || pid === 'undefined') return;
+
+    var el = document.getElementById('miniPlayer');
+    if (!el) return;
+
+    if (document.getElementById('fullPlayer')) {
+      var savedTime = parseFloat(sessionStorage.getItem('podcast_current_time'));
+      if (savedTime > 0) {
+        var audio = document.getElementById('audioEl');
+        if (audio && !isNaN(audio.duration)) audio.currentTime = savedTime;
+      }
+      return;
+    }
+
+    var title = sessionStorage.getItem('podcast_title');
+    var img = sessionStorage.getItem('podcast_img');
+    var audioUrl = sessionStorage.getItem('podcast_audio');
+    var currentTime = parseFloat(sessionStorage.getItem('podcast_current_time')) || 0;
+    var wasPlaying = sessionStorage.getItem('podcast_playing') === 'true';
+    if (!title || !audioUrl) return;
+
+    el.style.display = 'block';
+    setTimeout(function() { el.classList.add('active'); }, 10);
+    document.getElementById('miniImg').src = img;
+    document.getElementById('miniTitle').textContent = title;
+
+    var miniAudio = new Audio(audioUrl);
+    miniAudio.preload = 'auto';
+    miniAudio.currentTime = currentTime;
+
+    var miniPlayBtn = document.getElementById('miniPlayBtn');
+    var miniStatus = document.getElementById('miniStatus');
+    var miniProgress = document.getElementById('miniProgressFilled');
+    var miniCloseBtn = document.getElementById('miniCloseBtn');
+    var miniRaf = null;
+
+    function miniUpd() {
+      if (miniAudio.duration) miniProgress.style.width = (miniAudio.currentTime / miniAudio.duration * 100) + '%';
+      if (!miniAudio.paused) miniRaf = requestAnimationFrame(miniUpd);
+    }
+
+    function miniSet(playing) {
+      miniPlayBtn.innerHTML = playing ? '<i class="fas fa-pause"></i>' : '<i class="fas fa-play"></i>';
+      miniPlayBtn.setAttribute('aria-label', playing ? 'Pause' : 'Play');
+      miniStatus.textContent = playing ? 'Now Playing' : 'Paused';
+    }
+
+    miniPlayBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      if (miniAudio.paused) {
+        miniAudio.play().then(function() { miniSet(true); miniRaf = requestAnimationFrame(miniUpd); }).catch(function() {});
+      } else {
+        miniAudio.pause(); miniSet(false);
+        if (miniRaf) { cancelAnimationFrame(miniRaf); miniRaf = null; }
+      }
+    });
+
+    miniCloseBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      miniAudio.pause(); miniAudio.src = '';
+      el.classList.remove('active');
+      setTimeout(function() { el.style.display = 'none'; }, 300);
+      if (miniRaf) { cancelAnimationFrame(miniRaf); miniRaf = null; }
+      sessionStorage.removeItem('podcast_id'); sessionStorage.removeItem('podcast_title');
+      sessionStorage.removeItem('podcast_img'); sessionStorage.removeItem('podcast_audio');
+      sessionStorage.removeItem('podcast_playing'); sessionStorage.removeItem('podcast_current_time');
+      sessionStorage.removeItem('podcast_host');
+    });
+
+    setInterval(function() {
+      try {
+        sessionStorage.setItem('podcast_current_time', miniAudio.currentTime);
+        sessionStorage.setItem('podcast_playing', !miniAudio.paused ? 'true' : 'false');
+      } catch(e) {}
+    }, 1000);
+
+    if (wasPlaying) {
+      miniAudio.play().then(function() { miniSet(true); miniRaf = requestAnimationFrame(miniUpd); }).catch(function() { miniSet(false); });
+    } else {
+      miniSet(false);
+    }
+
+    var miniProg = el.querySelector('.mini-progress');
+    if (miniProg) {
+      miniProg.addEventListener('click', function(e) {
+        var rect = this.getBoundingClientRect();
+        var pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+        if (miniAudio.duration) {
+          miniAudio.currentTime = pct * miniAudio.duration;
+          miniProgress.style.width = (pct * 100) + '%';
+        }
+      });
+    }
+  })();
 })();

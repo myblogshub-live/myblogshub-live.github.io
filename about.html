@@ -236,5 +236,21 @@
   </footer>
 
   <script src="js/app.js"></script>
+
+<div class="mini-player" id="miniPlayer">
+  <div class="mini-progress-wrap"><div class="mini-progress"><div class="mini-progress-filled" id="miniProgressFilled"></div></div></div>
+  <div class="mini-player-inner">
+    <img class="mini-cover" id="miniImg" src="" alt="">
+    <div class="mini-info">
+      <span class="mini-title" id="miniTitle"></span>
+      <span class="mini-status" id="miniStatus">Paused</span>
+    </div>
+    <div class="mini-controls">
+      <button class="mini-close" id="miniCloseBtn" aria-label="Close Podcast"><i class="fas fa-times"></i></button>
+      <button id="miniPlayBtn" aria-label="Play"><i class="fas fa-play"></i></button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>

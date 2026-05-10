@@ -187,6 +187,7 @@
     const audio = document.getElementById('audioEl');
     audio.src = ep.audio;
     audio.preload = 'auto';
+    audio.load();
 
     const playBtn = document.getElementById('playBtn');
     const progressBar = document.getElementById('progressBar');
@@ -232,7 +233,6 @@
     }
 
     playBtn.addEventListener('click', togglePlay);
-    playBtn.addEventListener('touchend', (e) => { e.preventDefault(); togglePlay(); });
 
     audio.addEventListener('loadedmetadata', () => {
       totalTimeEl.textContent = formatTime(audio.duration);
@@ -284,13 +284,15 @@
       isDragging = true;
       progressBar.classList.add('dragging');
       document.body.style.userSelect = 'none';
+      document.body.style.webkitUserSelect = 'none';
       setProgress(e);
+      if (e.cancelable) e.preventDefault();
     }
 
     function moveDrag(e) {
       if (isDragging) {
         setProgress(e);
-        e.preventDefault();
+        if (e.cancelable) e.preventDefault();
       }
     }
 
@@ -299,6 +301,7 @@
         isDragging = false;
         progressBar.classList.remove('dragging');
         document.body.style.userSelect = '';
+        document.body.style.webkitUserSelect = '';
         commitProgress(e);
       }
     }
@@ -306,11 +309,11 @@
     progressBar.addEventListener('mousedown', startDrag);
     document.addEventListener('mousemove', moveDrag);
     document.addEventListener('mouseup', endDrag);
-    progressBar.addEventListener('click', (e) => { if (!isDragging) commitProgress(e); });
+    progressBar.addEventListener('click', (e) => { if (!isDragging) { e.stopPropagation(); commitProgress(e); } });
 
-    progressBar.addEventListener('touchstart', startDrag, { passive: true });
+    progressBar.addEventListener('touchstart', startDrag, { passive: false });
     document.addEventListener('touchmove', moveDrag, { passive: false });
-    document.addEventListener('touchend', endDrag);
+    document.addEventListener('touchend', endDrag, { passive: true });
 
     let prevVol = 1;
     volumeBtn.addEventListener('click', () => {

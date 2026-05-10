@@ -218,10 +218,11 @@
 
     function togglePlay() {
       if (audio.paused) {
-        audio.play().catch(() => {});
-        playBtn.innerHTML = '<i class="fas fa-pause"></i>';
-        playBtn.setAttribute('aria-label', 'Pause');
-        rafId = requestAnimationFrame(updateProgress);
+        audio.play().then(() => {
+          playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+          playBtn.setAttribute('aria-label', 'Pause');
+          rafId = requestAnimationFrame(updateProgress);
+        }).catch(() => {});
       } else {
         audio.pause();
         playBtn.innerHTML = '<i class="fas fa-play"></i>';
@@ -231,6 +232,7 @@
     }
 
     playBtn.addEventListener('click', togglePlay);
+    playBtn.addEventListener('touchend', (e) => { e.preventDefault(); togglePlay(); });
 
     audio.addEventListener('loadedmetadata', () => {
       totalTimeEl.textContent = formatTime(audio.duration);
@@ -252,19 +254,22 @@
       }
     });
 
-    function setProgress(e) {
+    function getPos(e) {
       const rect = progressBar.getBoundingClientRect();
-      let pct = (e.clientX - rect.left) / rect.width;
-      pct = Math.max(0, Math.min(1, pct));
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      let pct = (clientX - rect.left) / rect.width;
+      return Math.max(0, Math.min(1, pct));
+    }
+
+    function setProgress(e) {
+      const pct = getPos(e);
       progressFilled.style.width = (pct * 100) + '%';
       progressThumb.style.left = (pct * 100) + '%';
       currentTimeEl.textContent = formatTime(pct * (audio.duration || 0));
     }
 
     function commitProgress(e) {
-      const rect = progressBar.getBoundingClientRect();
-      let pct = (e.clientX - rect.left) / rect.width;
-      pct = Math.max(0, Math.min(1, pct));
+      const pct = getPos(e);
       if (audio.duration) {
         audio.currentTime = pct * audio.duration;
         if (audio.paused) {
@@ -275,29 +280,37 @@
       }
     }
 
-    progressBar.addEventListener('mousedown', (e) => {
+    function startDrag(e) {
       isDragging = true;
       progressBar.classList.add('dragging');
       document.body.style.userSelect = 'none';
       setProgress(e);
-    });
+    }
 
-    document.addEventListener('mousemove', (e) => {
-      if (isDragging) setProgress(e);
-    });
+    function moveDrag(e) {
+      if (isDragging) {
+        setProgress(e);
+        e.preventDefault();
+      }
+    }
 
-    document.addEventListener('mouseup', (e) => {
+    function endDrag(e) {
       if (isDragging) {
         isDragging = false;
         progressBar.classList.remove('dragging');
         document.body.style.userSelect = '';
         commitProgress(e);
       }
-    });
+    }
 
-    progressBar.addEventListener('click', (e) => {
-      if (!isDragging) commitProgress(e);
-    });
+    progressBar.addEventListener('mousedown', startDrag);
+    document.addEventListener('mousemove', moveDrag);
+    document.addEventListener('mouseup', endDrag);
+    progressBar.addEventListener('click', (e) => { if (!isDragging) commitProgress(e); });
+
+    progressBar.addEventListener('touchstart', startDrag, { passive: true });
+    document.addEventListener('touchmove', moveDrag, { passive: false });
+    document.addEventListener('touchend', endDrag);
 
     let prevVol = 1;
     volumeBtn.addEventListener('click', () => {

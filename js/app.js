@@ -285,34 +285,22 @@
     });
   });
 
-  // === Page transition on internal links ===
+  // === Page transition: open in new tab if audio playing ===
   document.querySelectorAll('a:not([href^="#"]):not([href^="http"]):not([href^="https"]):not([target="_blank"])').forEach(a => {
     const href = a.getAttribute('href');
     if (!href || href.startsWith('#') || href.startsWith('http') || href.startsWith('https') || href.startsWith('mailto') || href.startsWith('tel')) return;
     a.addEventListener('click', e => {
+      var pa = document.getElementById('audioEl');
+      if (pa && pa.src && !pa.paused) {
+        e.preventDefault();
+        window.open(href, '_blank');
+        return;
+      }
       e.preventDefault();
-      const dest = href;
-      try {
-        var pa = document.getElementById('audioEl');
-        if (pa && pa.src) {
-          var _p = new URLSearchParams(window.location.search);
-          var _id = _p.get('id');
-          if (_id !== null) {
-            sessionStorage.setItem('podcast_id', _id);
-            sessionStorage.setItem('podcast_time', pa.currentTime);
-            sessionStorage.setItem('podcast_playing', !pa.paused ? '1' : '0');
-            if (window.podcastData && window.podcastData[_id]) {
-              sessionStorage.setItem('podcast_audio', window.podcastData[_id].audio);
-              sessionStorage.setItem('podcast_title', window.podcastData[_id].title);
-              sessionStorage.setItem('podcast_img', window.podcastData[_id].img);
-            }
-          }
-        }
-      } catch(ex){}
       document.body.style.opacity = '0';
       document.body.style.transform = 'translateY(10px) scale(0.98)';
       document.body.style.transition = 'opacity 0.35s var(--smooth), transform 0.35s var(--smooth)';
-      setTimeout(() => { window.location.href = dest; }, 350);
+      setTimeout(() => { window.location.href = href; }, 350);
     });
   });
 

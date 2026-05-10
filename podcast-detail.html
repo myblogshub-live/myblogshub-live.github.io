@@ -256,26 +256,20 @@
     audio.src = originalSrc;
     audio.load();
 
-    var playQueued = false;
+    var canplayHandler = null;
 
-    function forcePlay() {
-      playQueued = false;
+    function playNow() {
+      if (canplayHandler) { audio.removeEventListener('canplay', canplayHandler); canplayHandler = null; }
       var p = audio.play();
       if (p) {
         p.then(setUIPlaying).catch(function() {
-          audio.addEventListener('canplay', function handler() {
-            if (audio.paused) {
-              audio.play().then(setUIPlaying).catch(setUIPaused);
-            } else {
-              setUIPlaying();
-            }
-            audio.removeEventListener('canplay', handler);
-          }, { once: true });
+          canplayHandler = function handler() {
+            if (audio.paused) { audio.play().then(setUIPlaying).catch(setUIPaused); }
+            else { setUIPlaying(); }
+            canplayHandler = null;
+          };
+          audio.addEventListener('canplay', canplayHandler, { once: true });
           audio.load();
-          setTimeout(function() {
-            if (!audio.paused) { setUIPlaying(); return; }
-            audio.play().then(setUIPlaying).catch(setUIPaused);
-          }, 2000);
         });
       }
     }
@@ -288,25 +282,33 @@
       localStorage.setItem('podcast_audio', ep.audio);
       localStorage.setItem('podcast_time', audio.currentTime);
       localStorage.setItem('podcast_playing', '1');
-      if (playQueued) return;
-      playQueued = true;
-      if (audio.readyState >= 2) {
-        forcePlay();
-      } else {
-        audio.addEventListener('canplay', forcePlay, { once: true });
-        audio.load();
-        setTimeout(function() {
-          audio.removeEventListener('canplay', forcePlay);
-          if (playQueued) {
-            playQueued = false;
-            audio.play().then(setUIPlaying).catch(setUIPaused);
-          }
-        }, 3000);
-      }
+      if (!audio.paused) return;
+      if (audio.readyState >= 2) { playNow(); return; }
+      if (canplayHandler) return;
+      canplayHandler = function handler() {
+        canplayHandler = null;
+        if (!audio.paused) { setUIPlaying(); return; }
+        audio.play().then(setUIPlaying).catch(setUIPaused);
+      };
+      audio.addEventListener('canplay', canplayHandler, { once: true });
+      audio.load();
+      setTimeout(function() {
+        if (!audio.paused) { setUIPlaying(); return; }
+        if (!canplayHandler) return;
+        audio.removeEventListener('canplay', canplayHandler);
+        canplayHandler = null;
+        audio.play().then(setUIPlaying).catch(setUIPaused);
+      }, 3000);
     }
 
     function togglePlay() {
-      if (audio.paused) tryPlay();
+      if (canplayHandler) {
+        audio.removeEventListener('canplay', canplayHandler);
+        canplayHandler = null;
+        setUIPaused();
+        return;
+      }
+      if (audio.paused) { tryPlay(); }
       else { audio.pause(); setUIPaused(); }
     }
 

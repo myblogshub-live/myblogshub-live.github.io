@@ -231,15 +231,20 @@
     window.addEventListener('beforeunload', saveState);
     setInterval(saveState, 1000);
 
+    // Preload audio immediately for instant play on first click
+    audio.src = ep.audio;
+    audio.load();
+
     var savedId = parseInt(localStorage.getItem('podcast_id'), 10);
     if (savedId === id) {
       var t = parseFloat(localStorage.getItem('podcast_time'));
-      if (t > 0 && t < (audio.duration || 1e8)) audio.currentTime = t;
+      if (t > 0) {
+        audio.addEventListener('loadedmetadata', function handler() {
+          if (t < (audio.duration || 1e8)) audio.currentTime = t;
+          audio.removeEventListener('loadedmetadata', handler);
+        }, { once: true });
+      }
     }
-
-    // Don't set src on load — set on first gesture
-    audio.removeAttribute('src');
-    audio.load();
 
     var _state = 'idle';
 
@@ -260,21 +265,7 @@
       saveState();
     }
 
-    function togglePlay() {
-      if (_state === 'playing') {
-        audio.pause();
-        _setState('paused');
-        return;
-      }
-      if (_state === 'paused') {
-        _setState('playing');
-        audio.play().then(function() { _setState('playing'); }).catch(function() { _setState('paused'); });
-        return;
-      }
-      if (_state === 'loading') return;
-      // idle → loading: set src and play in same gesture
-      audio.src = ep.audio;
-      audio.load();
+    function _startPlay() {
       _setState('loading');
       localStorage.setItem('podcast_id', id);
       localStorage.setItem('podcast_title', ep.title);
@@ -292,6 +283,13 @@
           if (_state === 'loading') { audio.play().then(function(){ _setState('playing'); }).catch(function(){ _setState('idle'); }); }
         }, 4000);
       });
+    }
+
+    function togglePlay() {
+      if (_state === 'playing') { audio.pause(); _setState('paused'); return; }
+      if (_state === 'paused') { _setState('playing'); audio.play().then(function(){ _setState('playing'); }).catch(function(){ _setState('paused'); }); return; }
+      if (_state === 'loading') return;
+      _startPlay();
     }
 
     playBtn.addEventListener('click', togglePlay);

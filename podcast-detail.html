@@ -185,95 +185,96 @@
     document.getElementById('podcastDuration').innerHTML = '<i class="far fa-clock"></i> ' + ep.duration;
     document.getElementById('podcastDesc').textContent = ep.desc;
 
-    const audio = document.getElementById('audioEl');
+    var audio = document.getElementById('audioEl');
     audio.preload = 'auto';
-    audio.src = ep.audio;
-    audio.load();
 
-    const playBtn = document.getElementById('playBtn');
-    const progressBar = document.getElementById('progressBar');
-    const progressFilled = document.getElementById('progressFilled');
-    const progressThumb = document.getElementById('progressThumb');
-    const currentTimeEl = document.getElementById('currentTime');
-    const totalTimeEl = document.getElementById('totalTime');
-    const volumeBtn = document.getElementById('volumeBtn');
-    const audioIcon = volumeBtn.querySelector('i');
+    var playBtn = document.getElementById('playBtn');
+    var progressBar = document.getElementById('progressBar');
+    var progressFilled = document.getElementById('progressFilled');
+    var progressThumb = document.getElementById('progressThumb');
+    var currentTimeEl = document.getElementById('currentTime');
+    var totalTimeEl = document.getElementById('totalTime');
+    var volumeBtn = document.getElementById('volumeBtn');
+    var audioIcon = volumeBtn.querySelector('i');
 
-    let isDragging = false;
-    let rafId = null;
-    let playLoading = false;
+    var isDragging = false;
+    var rafId = null;
 
     function formatTime(s) {
       if (isNaN(s) || !isFinite(s)) return '0:00';
-      const m = Math.floor(s / 60);
-      const sec = Math.floor(s % 60);
+      var m = Math.floor(s / 60);
+      var sec = Math.floor(s % 60);
       return m + ':' + (sec < 10 ? '0' : '') + sec;
     }
 
     function updateProgress() {
       if (!audio.duration || isDragging) return;
-      const pct = (audio.currentTime / audio.duration) * 100;
+      var pct = (audio.currentTime / audio.duration) * 100;
       progressFilled.style.width = pct + '%';
       progressThumb.style.left = pct + '%';
       currentTimeEl.textContent = formatTime(audio.currentTime);
       if (!audio.paused) rafId = requestAnimationFrame(updateProgress);
     }
 
-    function doPlay() {
-      playLoading = false;
+    function setUIPlaying() {
       playBtn.innerHTML = '<i class="fas fa-pause"></i>';
       playBtn.setAttribute('aria-label', 'Pause');
       rafId = requestAnimationFrame(updateProgress);
     }
 
-    function togglePlay() {
-      if (playLoading) return;
-      if (audio.paused) {
-        playBtn.innerHTML = '<i class="fas fa-pause"></i>';
-        playBtn.setAttribute('aria-label', 'Pause');
-        audio.play().then(doPlay).catch(() => {
-          if (audio.readyState >= 2) {
-            audio.play().then(doPlay).catch(() => { playBtn.innerHTML = '<i class="fas fa-play"></i>'; playBtn.setAttribute('aria-label', 'Play'); });
-            return;
-          }
-          playLoading = true;
-          playBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>';
-          audio.load();
-          var tick = setInterval(function () {
-            if (audio.readyState >= 2 || audio.currentTime > 0) {
-              clearInterval(tick);
-              playLoading = false;
-              if (!audio.paused) return;
-              audio.play().then(doPlay).catch(function () {
-                playBtn.innerHTML = '<i class="fas fa-play"></i>';
-                playBtn.setAttribute('aria-label', 'Play');
-                playLoading = false;
-              });
-            }
-          }, 30);
-          setTimeout(function () { clearInterval(tick); playLoading = false; }, 8000);
-        });
-      } else {
-        audio.pause();
-        playBtn.innerHTML = '<i class="fas fa-play"></i>';
-        playBtn.setAttribute('aria-label', 'Play');
-        if (rafId) cancelAnimationFrame(rafId);
-      }
+    function setUIPaused() {
+      playBtn.innerHTML = '<i class="fas fa-play"></i>';
+      playBtn.setAttribute('aria-label', 'Play');
+      if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
     }
+
+    // === Pre-fetch audio into memory for instant playback ===
+    var originalSrc = ep.audio;
+
+    function tryPlay(src, first) {
+      if (first) playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+      audio.play().then(setUIPlaying).catch(function () {
+        if (!first) return;
+        playBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>';
+        if (audio.src !== src) { audio.src = src; audio.load(); }
+        var tick = setInterval(function () {
+          if (audio.readyState >= 2 || audio.currentTime > 0) {
+            clearInterval(tick);
+            if (audio.paused) return;
+            audio.play().then(setUIPlaying).catch(setUIPaused);
+          }
+        }, 20);
+        setTimeout(function () { clearInterval(tick); setUIPaused(); }, 8000);
+      });
+    }
+
+    function togglePlay() {
+      if (audio.paused) tryPlay(originalSrc, true);
+      else { audio.pause(); setUIPaused(); }
+    }
+
+    // Start fetching audio as blob for zero-delay playback
+    fetch(ep.audio, { cache: 'force-cache' })
+      .then(function (r) { if (!r.ok) throw Error(); return r.blob(); })
+      .then(function (blob) {
+        var url = URL.createObjectURL(blob);
+        audio.src = url;
+        audio.load();
+      })
+      .catch(function () {
+        audio.src = originalSrc;
+        audio.load();
+      });
 
     playBtn.addEventListener('click', togglePlay);
     if (audio.readyState >= 1) totalTimeEl.textContent = formatTime(audio.duration);
-    audio.addEventListener('loadedmetadata', function () {
-      totalTimeEl.textContent = formatTime(audio.duration);
-    });
+    audio.addEventListener('loadedmetadata', function () { totalTimeEl.textContent = formatTime(audio.duration); });
 
-    audio.addEventListener('ended', () => {
-      playBtn.innerHTML = '<i class="fas fa-play"></i>';
-      playBtn.setAttribute('aria-label', 'Play');
+    audio.addEventListener('ended', function () {
+      setUIPaused();
       progressFilled.style.width = '0%';
       progressThumb.style.left = '0%';
       currentTimeEl.textContent = '0:00';
-      if (rafId) cancelAnimationFrame(rafId);
     });
 
     document.addEventListener('keydown', (e) => {

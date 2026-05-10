@@ -178,5 +178,33 @@
     </div>
   </div>
 </div>
+<script>
+(function(){
+  try {
+    var p = sessionStorage.getItem('podcast_id');
+    if (!p || p === 'undefined' || document.getElementById('fullPlayer')) return;
+    var e = document.getElementById('miniPlayer'), t = sessionStorage.getItem('podcast_title'), u = sessionStorage.getItem('podcast_audio');
+    if (!e || !t || !u) return;
+    e.style.display = 'block';
+    setTimeout(function(){ e.classList.add('active'); }, 20);
+    document.getElementById('miniImg').src = sessionStorage.getItem('podcast_img') || '';
+    document.getElementById('miniTitle').textContent = t;
+    var a = new Audio();
+    a.preload = 'auto'; a.src = u;
+    var c = parseFloat(sessionStorage.getItem('podcast_time')) || 0;
+    var w = sessionStorage.getItem('podcast_playing') === '1';
+    a.addEventListener('loadedmetadata', function(){ if (c > 0 && c < a.duration) a.currentTime = c; });
+    var b = document.getElementById('miniPlayBtn'), s = document.getElementById('miniStatus'), f = document.getElementById('miniProgressFilled'), x = document.getElementById('miniCloseBtn'), r = null;
+    function v(p){ b.innerHTML = p ? '<i class="fas fa-pause"></i>' : '<i class="fas fa-play"></i>'; b.setAttribute('aria-label', p ? 'Pause' : 'Play'); s.textContent = p ? 'Now Playing' : 'Paused'; }
+    function uf(){ if (a.duration) f.style.width = (a.currentTime / a.duration * 100) + '%'; if (!a.paused) r = requestAnimationFrame(uf); }
+    b.addEventListener('click', function(e){ e.stopPropagation(); if (a.paused) { a.play().then(function(){ v(1); r = requestAnimationFrame(uf); }).catch(function(){}); } else { a.pause(); v(0); if (r) { cancelAnimationFrame(r); r = null; } } });
+    x.addEventListener('click', function(e){ e.stopPropagation(); a.pause(); a.src = ''; e.currentTarget.closest('.mini-player').classList.remove('active'); ['podcast_id','podcast_title','podcast_img','podcast_audio','podcast_time','podcast_playing'].forEach(function(k){ try{ sessionStorage.removeItem(k); }catch(ex){} }); setTimeout(function(){ e.currentTarget.closest('.mini-player').style.display = 'none'; }, 300); });
+    setInterval(function(){ try { sessionStorage.setItem('podcast_time', a.currentTime); sessionStorage.setItem('podcast_playing', !a.paused ? '1' : '0'); } catch(ex){} }, 1000);
+    if (w) { a.load(); a.play().then(function(){ v(1); r = requestAnimationFrame(uf); }).catch(function(){ v(0); }); } else { v(0); }
+    var g = e.querySelector('.mini-progress');
+    if (g) g.addEventListener('click', function(e){ var q = this.getBoundingClientRect(); var o = Math.max(0, Math.min(1, (e.clientX - q.left) / q.width)); if (a.duration) { a.currentTime = o * a.duration; f.style.width = (o * 100) + '%'; } });
+  } catch(ex) {}
+})();
+</script>
 </body>
 </html>

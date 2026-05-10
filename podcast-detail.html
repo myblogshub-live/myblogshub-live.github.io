@@ -186,7 +186,7 @@
 
     const audio = document.getElementById('audioEl');
     audio.src = ep.audio;
-    audio.preload = 'none';
+    audio.preload = 'metadata';
 
     const playBtn = document.getElementById('playBtn');
     const progressBar = document.getElementById('progressBar');
@@ -216,30 +216,34 @@
       if (!audio.paused) rafId = requestAnimationFrame(updateProgress);
     }
 
+    let loadingAudio = false;
+
     function togglePlay() {
+      if (loadingAudio) return;
       if (audio.paused) {
-        playBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>';
-        const p = audio.play();
-        if (p) {
-          p.then(() => {
-            playBtn.innerHTML = '<i class="fas fa-pause"></i>';
-            playBtn.setAttribute('aria-label', 'Pause');
-            rafId = requestAnimationFrame(updateProgress);
-          }).catch(() => {
-            audio.load();
-            audio.addEventListener('canplay', function onReady() {
-              audio.removeEventListener('canplay', onReady);
-              audio.play().then(() => {
-                playBtn.innerHTML = '<i class="fas fa-pause"></i>';
-                playBtn.setAttribute('aria-label', 'Pause');
-                rafId = requestAnimationFrame(updateProgress);
-              }).catch(() => {
-                playBtn.innerHTML = '<i class="fas fa-play"></i>';
-                playBtn.setAttribute('aria-label', 'Play');
-              });
+        audio.play().then(() => {
+          playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+          playBtn.setAttribute('aria-label', 'Pause');
+          rafId = requestAnimationFrame(updateProgress);
+        }).catch(() => {
+          loadingAudio = true;
+          playBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>';
+          audio.load();
+          audio.addEventListener('canplay', function onReady() {
+            audio.removeEventListener('canplay', onReady);
+            loadingAudio = false;
+            if (audio.paused) return;
+            audio.play().then(() => {
+              playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+              playBtn.setAttribute('aria-label', 'Pause');
+              rafId = requestAnimationFrame(updateProgress);
+            }).catch(() => {
+              playBtn.innerHTML = '<i class="fas fa-play"></i>';
+              playBtn.setAttribute('aria-label', 'Play');
+              loadingAudio = false;
             });
           });
-        }
+        });
       } else {
         audio.pause();
         playBtn.innerHTML = '<i class="fas fa-play"></i>';

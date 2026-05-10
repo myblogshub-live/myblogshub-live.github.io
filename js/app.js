@@ -294,21 +294,21 @@
       const dest = href;
       try {
         var pa = document.getElementById('audioEl');
-        if (pa && pa.src && sessionStorage.getItem('podcast_id') !== null) {
-          sessionStorage.setItem('podcast_time', pa.currentTime);
-          sessionStorage.setItem('podcast_playing', !pa.paused ? '1' : '0');
-        }
-        // Also save podcast_audio if we can get it from podcastData
-        try {
+        if (pa && pa.src) {
           var _p = new URLSearchParams(window.location.search);
           var _id = _p.get('id');
-          if (_id !== null && window.podcastData && window.podcastData[_id]) {
-            sessionStorage.setItem('podcast_audio', window.podcastData[_id].audio);
-            sessionStorage.setItem('podcast_title', window.podcastData[_id].title);
-            sessionStorage.setItem('podcast_img', window.podcastData[_id].img);
+          if (_id !== null) {
+            sessionStorage.setItem('podcast_id', _id);
+            sessionStorage.setItem('podcast_time', pa.currentTime);
+            sessionStorage.setItem('podcast_playing', !pa.paused ? '1' : '0');
+            if (window.podcastData && window.podcastData[_id]) {
+              sessionStorage.setItem('podcast_audio', window.podcastData[_id].audio);
+              sessionStorage.setItem('podcast_title', window.podcastData[_id].title);
+              sessionStorage.setItem('podcast_img', window.podcastData[_id].img);
+            }
           }
-        } catch(ex){}
-      } catch(ex) {}
+        }
+      } catch(ex){}
       document.body.style.opacity = '0';
       document.body.style.transform = 'translateY(10px) scale(0.98)';
       document.body.style.transition = 'opacity 0.35s var(--smooth), transform 0.35s var(--smooth)';

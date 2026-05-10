@@ -270,6 +270,12 @@
 
     function tryPlay() {
       playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+      sessionStorage.setItem('podcast_id', id);
+      sessionStorage.setItem('podcast_title', ep.title);
+      sessionStorage.setItem('podcast_img', ep.img);
+      sessionStorage.setItem('podcast_audio', ep.audio);
+      sessionStorage.setItem('podcast_time', audio.currentTime);
+      sessionStorage.setItem('podcast_playing', '1');
       audio.play().then(setUIPlaying).catch(function () {
         var tick = setInterval(function () {
           if (audio.readyState >= 2 || audio.currentTime > 0) {

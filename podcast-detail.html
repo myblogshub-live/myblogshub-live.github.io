@@ -186,8 +186,7 @@
 
     const audio = document.getElementById('audioEl');
     audio.src = ep.audio;
-    audio.preload = 'auto';
-    audio.load();
+    audio.preload = 'none';
 
     const playBtn = document.getElementById('playBtn');
     const progressBar = document.getElementById('progressBar');
@@ -219,11 +218,28 @@
 
     function togglePlay() {
       if (audio.paused) {
-        audio.play().then(() => {
-          playBtn.innerHTML = '<i class="fas fa-pause"></i>';
-          playBtn.setAttribute('aria-label', 'Pause');
-          rafId = requestAnimationFrame(updateProgress);
-        }).catch(() => {});
+        playBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>';
+        const p = audio.play();
+        if (p) {
+          p.then(() => {
+            playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+            playBtn.setAttribute('aria-label', 'Pause');
+            rafId = requestAnimationFrame(updateProgress);
+          }).catch(() => {
+            audio.load();
+            audio.addEventListener('canplay', function onReady() {
+              audio.removeEventListener('canplay', onReady);
+              audio.play().then(() => {
+                playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                playBtn.setAttribute('aria-label', 'Pause');
+                rafId = requestAnimationFrame(updateProgress);
+              }).catch(() => {
+                playBtn.innerHTML = '<i class="fas fa-play"></i>';
+                playBtn.setAttribute('aria-label', 'Play');
+              });
+            });
+          });
+        }
       } else {
         audio.pause();
         playBtn.innerHTML = '<i class="fas fa-play"></i>';
@@ -237,6 +253,7 @@
     audio.addEventListener('loadedmetadata', () => {
       totalTimeEl.textContent = formatTime(audio.duration);
     });
+    if (audio.readyState >= 1) totalTimeEl.textContent = formatTime(audio.duration);
 
     audio.addEventListener('ended', () => {
       playBtn.innerHTML = '<i class="fas fa-play"></i>';

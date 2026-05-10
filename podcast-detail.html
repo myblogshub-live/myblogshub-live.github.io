@@ -224,7 +224,7 @@
         localStorage.setItem('podcast_img', ep.img);
         localStorage.setItem('podcast_audio', ep.audio);
         localStorage.setItem('podcast_time', audio.currentTime);
-        localStorage.setItem('podcast_playing', audio.paused ? '0' : '1');
+        localStorage.setItem('podcast_playing', _playing ? '1' : '0');
       } catch(e) {}
     }
     window.addEventListener('pagehide', saveState);
@@ -256,25 +256,40 @@
     audio.src = originalSrc;
     audio.load();
 
-    var canplayHandler = null;
+    var _playing = false;
+    var _playTimer = null;
 
-    function playNow() {
-      if (canplayHandler) { audio.removeEventListener('canplay', canplayHandler); canplayHandler = null; }
-      var p = audio.play();
-      if (p) {
-        p.then(setUIPlaying).catch(function() {
-          canplayHandler = function handler() {
-            if (audio.paused) { audio.play().then(setUIPlaying).catch(setUIPaused); }
-            else { setUIPlaying(); }
-            canplayHandler = null;
-          };
-          audio.addEventListener('canplay', canplayHandler, { once: true });
-          audio.load();
-        });
-      }
+    function _stopPlayTimer() {
+      if (_playTimer) { clearTimeout(_playTimer); _playTimer = null; }
     }
 
-    function tryPlay() {
+    function _doPlay() {
+      _stopPlayTimer();
+      var p = audio.play();
+      if (!p) { setUIPlaying(); _playing = true; return; }
+      p.then(function() { setUIPlaying(); _playing = true; }).catch(function() {
+        var handler = function() {
+          if (!_playing) return;
+          audio.play().then(function() { setUIPlaying(); _playing = true; }).catch(function() { _playing = false; setUIPaused(); });
+        };
+        audio.addEventListener('canplay', handler, { once: true });
+        audio.load();
+        _playTimer = setTimeout(function() {
+          audio.removeEventListener('canplay', handler);
+          if (_playing) { audio.play().then(function(){ setUIPlaying(); }).catch(function(){ _playing = false; setUIPaused(); }); }
+        }, 3000);
+      });
+    }
+
+    function togglePlay() {
+      if (_playing) {
+        _playing = false;
+        _stopPlayTimer();
+        audio.pause();
+        setUIPaused();
+        return;
+      }
+      _playing = true;
       playBtn.innerHTML = '<i class="fas fa-pause"></i>';
       localStorage.setItem('podcast_id', id);
       localStorage.setItem('podcast_title', ep.title);
@@ -282,34 +297,17 @@
       localStorage.setItem('podcast_audio', ep.audio);
       localStorage.setItem('podcast_time', audio.currentTime);
       localStorage.setItem('podcast_playing', '1');
-      if (!audio.paused) return;
-      if (audio.readyState >= 2) { playNow(); return; }
-      if (canplayHandler) return;
-      canplayHandler = function handler() {
-        canplayHandler = null;
-        if (!audio.paused) { setUIPlaying(); return; }
-        audio.play().then(setUIPlaying).catch(setUIPaused);
+      if (audio.readyState >= 2) { _doPlay(); return; }
+      var handler = function() {
+        if (!_playing) return;
+        audio.play().then(function() { setUIPlaying(); _playing = true; }).catch(function() { _playing = false; setUIPaused(); });
       };
-      audio.addEventListener('canplay', canplayHandler, { once: true });
+      audio.addEventListener('canplay', handler, { once: true });
       audio.load();
-      setTimeout(function() {
-        if (!audio.paused) { setUIPlaying(); return; }
-        if (!canplayHandler) return;
-        audio.removeEventListener('canplay', canplayHandler);
-        canplayHandler = null;
-        audio.play().then(setUIPlaying).catch(setUIPaused);
+      _playTimer = setTimeout(function() {
+        audio.removeEventListener('canplay', handler);
+        if (_playing) { audio.play().then(function(){ setUIPlaying(); }).catch(function(){ _playing = false; setUIPaused(); }); }
       }, 3000);
-    }
-
-    function togglePlay() {
-      if (canplayHandler) {
-        audio.removeEventListener('canplay', canplayHandler);
-        canplayHandler = null;
-        setUIPaused();
-        return;
-      }
-      if (audio.paused) { tryPlay(); }
-      else { audio.pause(); setUIPaused(); }
     }
 
     playBtn.addEventListener('click', togglePlay);
@@ -318,6 +316,7 @@
     audio.addEventListener('loadedmetadata', function () { totalTimeEl.textContent = formatTime(audio.duration); });
 
     audio.addEventListener('ended', function () {
+      _playing = false;
       setUIPaused();
       progressFilled.style.width = '0%';
       progressThumb.style.left = '0%';

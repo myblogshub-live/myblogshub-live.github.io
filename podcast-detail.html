@@ -269,7 +269,10 @@
         return;
       }
       if (_playReq && !_everStarted) {
-        audio.load();
+        if (!audio.src || audio.src === window.location.href) {
+          audio.src = ep.audio;
+          audio.load();
+        }
         audio.play();
         return;
       }

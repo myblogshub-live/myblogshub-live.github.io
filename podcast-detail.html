@@ -271,11 +271,8 @@
         audio.play().then(function() { _setState('playing'); }).catch(function() { _setState('paused'); });
         return;
       }
-      if (_state === 'loading') {
-        _setState('idle');
-        return;
-      }
-      // idle → loading
+      if (_state === 'loading') return;
+      // idle → loading: set src and play in same gesture
       audio.src = ep.audio;
       audio.load();
       _setState('loading');
@@ -285,19 +282,16 @@
       localStorage.setItem('podcast_audio', ep.audio);
       localStorage.setItem('podcast_time', '0');
       localStorage.setItem('podcast_playing', '1');
-      var played = false;
-      var canplayFn = function() {
-        if (_state !== 'loading') return;
-        played = true;
-        audio.play().then(function() { _setState('playing'); }).catch(function() { _setState('idle'); });
-      };
-      audio.addEventListener('canplay', canplayFn, { once: true });
-      setTimeout(function() {
-        audio.removeEventListener('canplay', canplayFn);
-        if (_state !== 'loading') return;
-        if (played) return;
-        audio.play().then(function() { _setState('playing'); }).catch(function() { _setState('idle'); });
-      }, 4000);
+      audio.play().then(function() { _setState('playing'); }).catch(function() {
+        var h = function() {
+          audio.play().then(function() { _setState('playing'); }).catch(function() { _setState('idle'); });
+        };
+        audio.addEventListener('canplay', h, { once: true });
+        setTimeout(function() {
+          audio.removeEventListener('canplay', h);
+          if (_state === 'loading') { audio.play().then(function(){ _setState('playing'); }).catch(function(){ _setState('idle'); }); }
+        }, 4000);
+      });
     }
 
     playBtn.addEventListener('click', togglePlay);

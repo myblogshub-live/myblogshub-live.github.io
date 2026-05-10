@@ -302,4 +302,15 @@
   // === Disable right-click context menu ===
   document.addEventListener('contextmenu', (e) => e.preventDefault());
 
+  // === Disable view-source shortcuts ===
+  document.addEventListener('keydown', (e) => {
+    if (
+      e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C') ||
+      e.ctrlKey && e.key === 'u' ||
+      e.key === 'F12'
+    ) {
+      e.preventDefault();
+    }
+  });
+
 })();

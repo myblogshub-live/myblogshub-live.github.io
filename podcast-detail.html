@@ -254,6 +254,31 @@
     // Set src immediately so play() works on first click
     var originalSrc = ep.audio;
     audio.src = originalSrc;
+    audio.load();
+
+    var playQueued = false;
+
+    function forcePlay() {
+      playQueued = false;
+      var p = audio.play();
+      if (p) {
+        p.then(setUIPlaying).catch(function() {
+          audio.addEventListener('canplay', function handler() {
+            if (audio.paused) {
+              audio.play().then(setUIPlaying).catch(setUIPaused);
+            } else {
+              setUIPlaying();
+            }
+            audio.removeEventListener('canplay', handler);
+          }, { once: true });
+          audio.load();
+          setTimeout(function() {
+            if (!audio.paused) { setUIPlaying(); return; }
+            audio.play().then(setUIPlaying).catch(setUIPaused);
+          }, 2000);
+        });
+      }
+    }
 
     function tryPlay() {
       playBtn.innerHTML = '<i class="fas fa-pause"></i>';
@@ -263,16 +288,21 @@
       localStorage.setItem('podcast_audio', ep.audio);
       localStorage.setItem('podcast_time', audio.currentTime);
       localStorage.setItem('podcast_playing', '1');
-      audio.play().then(setUIPlaying).catch(function () {
-        var tick = setInterval(function () {
-          if (audio.readyState >= 2 || audio.currentTime > 0) {
-            clearInterval(tick);
-            if (audio.paused) return;
+      if (playQueued) return;
+      playQueued = true;
+      if (audio.readyState >= 2) {
+        forcePlay();
+      } else {
+        audio.addEventListener('canplay', forcePlay, { once: true });
+        audio.load();
+        setTimeout(function() {
+          audio.removeEventListener('canplay', forcePlay);
+          if (playQueued) {
+            playQueued = false;
             audio.play().then(setUIPlaying).catch(setUIPaused);
           }
-        }, 50);
-        setTimeout(function () { clearInterval(tick); setUIPaused(); }, 8000);
-      });
+        }, 3000);
+      }
     }
 
     function togglePlay() {
@@ -281,6 +311,7 @@
     }
 
     playBtn.addEventListener('click', togglePlay);
+    playBtn.addEventListener('touchstart', function(){ audio.load(); }, { passive: true });
     if (audio.readyState >= 1) totalTimeEl.textContent = formatTime(audio.duration);
     audio.addEventListener('loadedmetadata', function () { totalTimeEl.textContent = formatTime(audio.duration); });
 

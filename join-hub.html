@@ -403,9 +403,6 @@
   a.preload = 'auto';
   var ct = parseFloat(localStorage.getItem('podcast_time')) || 0;
   var wasPlaying = localStorage.getItem('podcast_playing') === '1';
-  a.addEventListener('loadedmetadata', function(){
-    if (ct > 0 && ct < a.duration) a.currentTime = ct;
-  });
   var pb = document.getElementById('miniPlayBtn');
   var st = document.getElementById('miniStatus');
   var pf = document.getElementById('miniProgressFilled');
@@ -423,7 +420,7 @@
   if (pb) pb.addEventListener('click', function(e){
     e.stopPropagation();
     if (a.paused) {
-      a.play().then(function(){ setUI(true); raf = requestAnimationFrame(updateProg); }).catch(function(){});
+      a.play().then(function(){ if (ct > 0 && ct < a.duration) a.currentTime = ct; ct = 0; setUI(true); raf = requestAnimationFrame(updateProg); }).catch(function(){});
     } else {
       a.pause(); setUI(false);
       if (raf) { cancelAnimationFrame(raf); raf = null; }
@@ -442,8 +439,7 @@
   } catch(ex){} }, 1000);
   if (wasPlaying) {
     a.addEventListener('canplay', function(){
-      if (ct > 0 && ct < a.duration) a.currentTime = ct;
-      a.play().then(function(){ setUI(true); raf = requestAnimationFrame(updateProg); }).catch(function(){ setUI(false); });
+      a.play().then(function(){ if (ct > 0 && ct < a.duration) a.currentTime = ct; ct = 0; setUI(true); raf = requestAnimationFrame(updateProg); }).catch(function(){ setUI(false); });
     }, { once: true });
     a.load();
   } else {

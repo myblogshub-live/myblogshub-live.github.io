@@ -223,9 +223,8 @@
         sessionStorage.setItem('podcast_title', ep.title);
         sessionStorage.setItem('podcast_img', ep.img);
         sessionStorage.setItem('podcast_audio', ep.audio);
-        sessionStorage.setItem('podcast_host', ep.host);
-        sessionStorage.setItem('podcast_current_time', audio.currentTime);
-        sessionStorage.setItem('podcast_playing', !audio.paused ? 'true' : 'false');
+        sessionStorage.setItem('podcast_time', audio.currentTime);
+        sessionStorage.setItem('podcast_playing', !audio.paused ? '1' : '0');
       } catch(e) {}
     }
     window.addEventListener('pagehide', saveSession);
@@ -234,7 +233,7 @@
 
     var savedId = parseInt(sessionStorage.getItem('podcast_id'), 10);
     if (savedId === id) {
-      var t = parseFloat(sessionStorage.getItem('podcast_current_time'));
+      var t = parseFloat(sessionStorage.getItem('podcast_time'));
       if (t > 0) audio.currentTime = t;
     }
 
@@ -411,6 +410,53 @@
     </div>
   </div>
 </div>
+
+<script>
+// === Mini Player: persists audio across pages ===
+(function(){
+  var mp = document.getElementById('miniPlayer');
+  if (!mp) return;
+  var isFull = document.getElementById('fullPlayer');
+
+  // Save podcast state whenever play state changes
+  var audio = document.getElementById('audioEl');
+  if (audio) {
+    audio.addEventListener('play', function(){ mpSave(); });
+    audio.addEventListener('pause', function(){ mpSave(); });
+    audio.addEventListener('timeupdate', function(){ mpSave(); });
+  }
+  window.addEventListener('pagehide', function(){ mpSave(); });
+  window.addEventListener('beforeunload', function(){ mpSave(); });
+
+  // Restore position from sessionStorage
+  try {
+    var sid = parseInt(sessionStorage.getItem('podcast_id'), 10);
+    var params = new URLSearchParams(window.location.search);
+    var cid = parseInt(params.get('id'), 10);
+    if (sid === cid && audio) {
+      var t = parseFloat(sessionStorage.getItem('podcast_time'));
+      if (t > 0 && t < 1e8) audio.currentTime = t;
+    }
+  } catch(e){}
+})();
+
+function mpSave() {
+  try {
+    var a = document.getElementById('audioEl');
+    if (!a || !a.src) return;
+    var p = new URLSearchParams(window.location.search);
+    var id = p.get('id');
+    if (id === null) return;
+    var ep = window.podcastData ? window.podcastData[parseInt(id)] : null;
+    sessionStorage.setItem('podcast_id', id);
+    sessionStorage.setItem('podcast_title', document.getElementById('podcastTitle')?.textContent || '');
+    sessionStorage.setItem('podcast_img', document.getElementById('podcastCover')?.src || '');
+    sessionStorage.setItem('podcast_audio', ep ? ep.audio : '');
+    sessionStorage.setItem('podcast_time', a.currentTime);
+    sessionStorage.setItem('podcast_playing', !a.paused ? '1' : '0');
+  } catch(e){}
+}
+</script>
 
 </body>
 </html>

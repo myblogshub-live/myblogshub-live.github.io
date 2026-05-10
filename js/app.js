@@ -295,9 +295,19 @@
       try {
         var pa = document.getElementById('audioEl');
         if (pa && pa.src && sessionStorage.getItem('podcast_id') !== null) {
-          sessionStorage.setItem('podcast_current_time', pa.currentTime);
-          sessionStorage.setItem('podcast_playing', !pa.paused ? 'true' : 'false');
+          sessionStorage.setItem('podcast_time', pa.currentTime);
+          sessionStorage.setItem('podcast_playing', !pa.paused ? '1' : '0');
         }
+        // Also save podcast_audio if we can get it from podcastData
+        try {
+          var _p = new URLSearchParams(window.location.search);
+          var _id = _p.get('id');
+          if (_id !== null && window.podcastData && window.podcastData[_id]) {
+            sessionStorage.setItem('podcast_audio', window.podcastData[_id].audio);
+            sessionStorage.setItem('podcast_title', window.podcastData[_id].title);
+            sessionStorage.setItem('podcast_img', window.podcastData[_id].img);
+          }
+        } catch(ex){}
       } catch(ex) {}
       document.body.style.opacity = '0';
       document.body.style.transform = 'translateY(10px) scale(0.98)';
@@ -324,104 +334,79 @@
     }
   }, { capture: true });
 
-  // === Persistent Mini Player across pages ===
-  (function() {
-    try { var pid = sessionStorage.getItem('podcast_id'); } catch(e) { return; }
-    if (pid === null || pid === 'undefined') return;
-
-    var el = document.getElementById('miniPlayer');
-    if (!el) return;
-
+  // === Mini Player: persists audio across all pages ===
+  (function(){
+    try { var _pid = sessionStorage.getItem('podcast_id'); } catch(e){ return; }
+    if (!_pid || _pid === 'undefined') return;
     if (document.getElementById('fullPlayer')) {
-      var savedTime = parseFloat(sessionStorage.getItem('podcast_current_time'));
-      if (savedTime > 0) {
-        var audio = document.getElementById('audioEl');
-        if (audio && !isNaN(audio.duration)) audio.currentTime = savedTime;
-      }
+      var _audio = document.getElementById('audioEl');
+      if (_audio) try {
+        var _t = parseFloat(sessionStorage.getItem('podcast_time'));
+        if (_t > 0 && _t < 1e8) _audio.currentTime = _t;
+      } catch(e){}
       return;
     }
-
-    var title = sessionStorage.getItem('podcast_title');
-    var img = sessionStorage.getItem('podcast_img');
-    var audioUrl = sessionStorage.getItem('podcast_audio');
-    var currentTime = parseFloat(sessionStorage.getItem('podcast_current_time')) || 0;
-    var wasPlaying = sessionStorage.getItem('podcast_playing') === 'true';
-    if (!title || !audioUrl) return;
-
-    el.style.display = 'block';
-    setTimeout(function() { el.classList.add('active'); }, 10);
-    document.getElementById('miniImg').src = img;
-    document.getElementById('miniTitle').textContent = title;
-
-    var miniAudio = new Audio(audioUrl);
-    miniAudio.preload = 'auto';
-    if (currentTime > 0) {
-      miniAudio.addEventListener('loadedmetadata', function onMeta() {
-        if (miniAudio.duration && currentTime < miniAudio.duration) miniAudio.currentTime = currentTime;
-      }, { once: true });
+    var _el = document.getElementById('miniPlayer');
+    var _title = sessionStorage.getItem('podcast_title');
+    var _img = sessionStorage.getItem('podcast_img');
+    if (!_el || !_title) return;
+    _el.style.display = 'block';
+    setTimeout(function(){ _el.classList.add('active'); }, 20);
+    document.getElementById('miniImg').src = _img || '';
+    document.getElementById('miniTitle').textContent = _title;
+    var _a = new Audio();
+    _a.preload = 'auto';
+    var _t = parseFloat(sessionStorage.getItem('podcast_time')) || 0;
+    var _playing = sessionStorage.getItem('podcast_playing') === '1';
+    var _pb = document.getElementById('miniPlayBtn');
+    var _st = document.getElementById('miniStatus');
+    var _pf = document.getElementById('miniProgressFilled');
+    var _cb = document.getElementById('miniCloseBtn');
+    var _raf = null;
+    function _ui(p){
+      _pb.innerHTML = p ? '<i class="fas fa-pause"></i>' : '<i class="fas fa-play"></i>';
+      _pb.setAttribute('aria-label', p ? 'Pause' : 'Play');
+      _st.textContent = p ? 'Now Playing' : 'Paused';
     }
-
-    var miniPlayBtn = document.getElementById('miniPlayBtn');
-    var miniStatus = document.getElementById('miniStatus');
-    var miniProgress = document.getElementById('miniProgressFilled');
-    var miniCloseBtn = document.getElementById('miniCloseBtn');
-    var miniRaf = null;
-
-    function miniUpd() {
-      if (miniAudio.duration) miniProgress.style.width = (miniAudio.currentTime / miniAudio.duration * 100) + '%';
-      if (!miniAudio.paused) miniRaf = requestAnimationFrame(miniUpd);
+    function _up(){
+      if (_a.duration) _pf.style.width = (_a.currentTime / _a.duration * 100) + '%';
+      if (!_a.paused) _raf = requestAnimationFrame(_up);
     }
-
-    function miniSet(playing) {
-      miniPlayBtn.innerHTML = playing ? '<i class="fas fa-pause"></i>' : '<i class="fas fa-play"></i>';
-      miniPlayBtn.setAttribute('aria-label', playing ? 'Pause' : 'Play');
-      miniStatus.textContent = playing ? 'Now Playing' : 'Paused';
-    }
-
-    miniPlayBtn.addEventListener('click', function(e) {
+    function _save(){ try {
+      sessionStorage.setItem('podcast_time', _a.currentTime);
+      sessionStorage.setItem('podcast_playing', !_a.paused ? '1' : '0');
+    } catch(e){} }
+    _pb.addEventListener('click', function(e){
       e.stopPropagation();
-      if (miniAudio.paused) {
-        miniAudio.play().then(function() { miniSet(true); miniRaf = requestAnimationFrame(miniUpd); }).catch(function() {});
-      } else {
-        miniAudio.pause(); miniSet(false);
-        if (miniRaf) { cancelAnimationFrame(miniRaf); miniRaf = null; }
-      }
+      if (_a.paused) { _a.play().then(function(){ _ui(1); _raf = requestAnimationFrame(_up); }).catch(function(){}); }
+      else { _a.pause(); _ui(0); if (_raf) { cancelAnimationFrame(_raf); _raf = null; } }
     });
-
-    miniCloseBtn.addEventListener('click', function(e) {
-      e.stopPropagation();
-      miniAudio.pause(); miniAudio.src = '';
-      el.classList.remove('active');
-      setTimeout(function() { el.style.display = 'none'; }, 300);
-      if (miniRaf) { cancelAnimationFrame(miniRaf); miniRaf = null; }
-      sessionStorage.removeItem('podcast_id'); sessionStorage.removeItem('podcast_title');
-      sessionStorage.removeItem('podcast_img'); sessionStorage.removeItem('podcast_audio');
-      sessionStorage.removeItem('podcast_playing'); sessionStorage.removeItem('podcast_current_time');
-      sessionStorage.removeItem('podcast_host');
+    _cb.addEventListener('click', function(e){
+      e.stopPropagation(); _a.pause(); _a.src = '';
+      _el.classList.remove('active');
+      ['podcast_id','podcast_title','podcast_img','podcast_audio','podcast_time','podcast_playing'].forEach(function(x){ try{ sessionStorage.removeItem(x); }catch(e){} });
+      setTimeout(function(){ _el.style.display = 'none'; }, 300);
     });
-
-    setInterval(function() {
-      try {
-        sessionStorage.setItem('podcast_current_time', miniAudio.currentTime);
-        sessionStorage.setItem('podcast_playing', !miniAudio.paused ? 'true' : 'false');
-      } catch(e) {}
-    }, 1000);
-
-    if (wasPlaying) {
-      miniAudio.play().then(function() { miniSet(true); miniRaf = requestAnimationFrame(miniUpd); }).catch(function() { miniSet(false); });
+    (function _tick(){ _save(); setTimeout(_tick, 1000); })();
+    var _url = sessionStorage.getItem('podcast_audio');
+    if (_playing && _url) {
+      _a.addEventListener('loadedmetadata', function(){
+        if (_t > 0 && _t < _a.duration) _a.currentTime = _t;
+        _a.play().then(function(){ _ui(1); _raf = requestAnimationFrame(_up); }).catch(function(){ _ui(0); });
+      });
+      _a.src = _url; _a.load();
+    } else if (_url) {
+      _a.src = _url; _a.load();
+      _ui(0);
     } else {
-      miniSet(false);
+      _ui(0);
     }
-
-    var miniProg = el.querySelector('.mini-progress');
-    if (miniProg) {
-      miniProg.addEventListener('click', function(e) {
-        var rect = this.getBoundingClientRect();
-        var pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-        if (miniAudio.duration) {
-          miniAudio.currentTime = pct * miniAudio.duration;
-          miniProgress.style.width = (pct * 100) + '%';
-        }
+    var _prog = _el.querySelector('.mini-progress');
+    if (_prog) {
+      _prog.addEventListener('click', function(e){
+        var _r = this.getBoundingClientRect();
+        var _p = Math.max(0, Math.min(1, (e.clientX - _r.left) / _r.width));
+        if (_a.duration) { _a.currentTime = _p * _a.duration; _pf.style.width = (_p * 100) + '%'; }
       });
     }
   })();

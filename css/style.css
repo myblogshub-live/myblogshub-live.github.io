@@ -403,9 +403,4 @@ body.focus-mode .container { padding: 0 clamp(30px,6vw,60px); }
   section { content-visibility: auto; contain-intrinsic-size: 1px 500px; }
 }
 
-.yt-badge {
-  position:absolute;top:10px;right:10px;background:#ff0000;color:#fff;
-  width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;
-  font-size:14px;z-index:2;box-shadow:0 2px 8px rgba(255,0,0,0.4);
-}
-.card-img-wrap { position:relative; }
+

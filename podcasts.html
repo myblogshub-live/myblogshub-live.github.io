@@ -114,8 +114,8 @@
   <script src="js/app.js?v=3"></script>
   <script>
     const allPodcasts = [
-      { id:0, title:'The Future of AI Assistants', category:'technology', img:'https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=800&q=80', desc:'Sam Altman on GPT-4, ChatGPT, and the future of AI.', meta:'Technology · 2h 24min', yt:true },
-      { id:1, title:'Slow Living in a Fast World', category:'lifestyle', img:'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=800&q=80', desc:'David Goggins on building discipline, inner strength, and resilience.', meta:'Lifestyle · 2h 38min', yt:true },
+      { id:0, title:'The Future of AI Assistants', category:'technology', img:'https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=800&q=80', desc:'Sam Altman on GPT-4, ChatGPT, and the future of AI.', meta:'Technology · 2h 28min' },
+      { id:1, title:'Slow Living in a Fast World', category:'lifestyle', img:'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=800&q=80', desc:'David Goggins on building discipline, inner strength, and resilience.', meta:'Lifestyle · 2h 33min' },
       { id:2, title:'Design Thinking at Scale', category:'design', img:'https://images.unsplash.com/photo-1558655146-9f40138edfeb?auto=format&fit=crop&w=800&q=80', desc:'How large organizations implement human-centered design.', meta:'Design · 41 min' },
       { id:3, title:'The Culture of Remote Work', category:'culture', img:'https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=800&q=80', desc:'Navigating identity and belonging in distributed teams.', meta:'Culture · 35 min' },
       { id:4, title:'Deep Focus Habits', category:'productivity', img:'https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?auto=format&fit=crop&w=800&q=80', desc:'Mastering the art of concentrated work in a distracted age.', meta:'Productivity · 22 min' },
@@ -141,7 +141,7 @@
       if (filtered.length === 0) { grid.innerHTML = '<div class="no-results">No podcasts found. Try a different search or category.</div>'; return; }
       grid.innerHTML = filtered.map((p,i) => `
         <article class="podcast-card tilt-card" style="animation:fadeUp 0.5s ${i*0.06}s cubic-bezier(0.19,1,0.22,1) both;">
-          <div class="card-img-wrap"><img src="${p.img}" alt="${p.title}" loading="lazy">${p.yt ? '<span class="yt-badge"><i class="fab fa-youtube"></i></span>' : ''}</div>
+          <div class="card-img-wrap"><img src="${p.img}" alt="${p.title}" loading="lazy"></div>
           <div class="card-content tilt-card-inner">
             <span class="card-meta">${p.meta}</span>
             <h2 class="card-title">${p.title}</h2>

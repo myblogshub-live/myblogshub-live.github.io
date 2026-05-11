@@ -290,11 +290,21 @@
     if (a.duration && pf) pf.style.width = (a.currentTime / a.duration * 100) + '%';
     if (!a.paused) raf = requestAnimationFrame(updateProg);
   }
+  function miniTryPlay(retries) {
+    retries = retries || 0;
+    if (retries > 3) { setUI(false); return; }
+    if (!a.paused) return;
+    a.play().then(function(){
+      if (ct > 0 && a.duration && ct < a.duration) a.currentTime = ct;
+      ct = 0; setUI(true);
+      raf = requestAnimationFrame(updateProg);
+    }).catch(function(){
+      setTimeout(function(){ miniTryPlay(retries + 1); }, 300);
+    });
+  }
   if (pb) pb.addEventListener('click', function(e){
     e.stopPropagation();
-    if (a.paused) {
-      a.play().then(function(){ if (ct > 0 && ct < a.duration) a.currentTime = ct; ct = 0; setUI(true); raf = requestAnimationFrame(updateProg); }).catch(function(){});
-    } else {
+    if (a.paused) { miniTryPlay(0); } else {
       a.pause(); setUI(false);
       if (raf) { cancelAnimationFrame(raf); raf = null; }
     }
@@ -307,10 +317,15 @@
     ['podcast_id','podcast_title','podcast_img','podcast_audio','podcast_time','podcast_playing'].forEach(function(k){ try{ localStorage.removeItem(k); }catch(ex){} });
     setTimeout(function(){ if (el) el.style.display = 'none'; }, 300);
   });
+  if (el) el.addEventListener('click', function(e){
+    if (e.target.closest('button') || e.target.closest('.mini-progress-wrap')) return;
+    var navId = localStorage.getItem('podcast_id');
+    if (navId && navId !== 'undefined') window.location.href = 'podcast-detail.html?id=' + navId;
+  });
   setInterval(function(){ try {
     localStorage.setItem('podcast_time', a.currentTime);
     localStorage.setItem('podcast_playing', !a.paused ? '1' : '0');
-  } catch(ex){}   }, 1000);
+  } catch(ex){} }, 1000);
   setUI(wasPlaying);
   if (pf && a.duration > 0 && ct > 0) pf.style.width = (ct / a.duration * 100) + '%';
   var prog = el ? el.querySelector('.mini-progress') : null;

@@ -175,9 +175,9 @@
   <script src="js/blog-data.js?v=3"></script>
   <script src="js/router.js?v=1"></script>
   <script>
-    const params = new URLSearchParams(window.location.search);
-    const id = parseInt(params.get('id')) || 0;
-    const ep = podcastData[id];
+    var params = new URLSearchParams(window.location.search);
+    var id = parseInt(params.get('id')) || 0;
+    var ep = podcastData[id];
     if (!ep) window.location.href = 'podcasts.html';
 
     document.title = ep.title + ' – H.x.H Podcast';
@@ -410,7 +410,7 @@
     document.addEventListener('touchmove', moveDrag, { passive: false });
     document.addEventListener('touchend', endDrag, { passive: true });
 
-    let prevVol = 1;
+    var prevVol = 1;
     volumeBtn.addEventListener('click', () => {
       if (audio.volume > 0) {
         prevVol = audio.volume;
@@ -428,8 +428,8 @@
       else audioIcon.className = 'fas fa-volume-up';
     });
 
-    const related = podcastData.filter(p => p.id !== id).slice(0, 3);
-    const grid = document.getElementById('relatedGrid');
+    var related = podcastData.filter(p => p.id !== id).slice(0, 3);
+    var grid = document.getElementById('relatedGrid');
     related.forEach((ep, i) => {
       const card = document.createElement('a');
       card.href = 'podcast-detail.html?id=' + ep.id;

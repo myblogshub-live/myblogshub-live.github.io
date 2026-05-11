@@ -31,7 +31,7 @@
       });
 
       // Stagger grid items
-      gsap.utils.toArray('.blogs-grid > *, .podcasts-grid > *, .related-grid > *, .blog-masonry > *, .profile-grid-2 > *, .features > *, .mission-row > *, .team-grid > *, .featured-grid > *, .vibe-grid > *, .testimonial-grid > *, .badges-row > *, .join-grid > *, .about-grid > *, .podcast-detail-grid > *').forEach(function(parent) {
+      gsap.utils.toArray('.blogs-grid > *, .blog-masonry > *, .profile-grid-2 > *, .features > *, .mission-row > *, .team-grid > *, .featured-grid > *, .vibe-grid > *, .testimonial-grid > *, .badges-row > *, .join-grid > *, .about-grid > *').forEach(function(parent) {
         var items = parent.children;
         if (items.length > 1) {
           gsap.fromTo(items, { opacity: 0, y: isTouch ? 15 : 30 }, { opacity: 1, y: 0, duration: isTouch ? 0.3 : 0.5, stagger: isTouch ? 0.04 : 0.06, ease: smoothCB, scrollTrigger: { trigger: parent, start: 'top 90%', toggleActions: 'play none none none', once: true } });

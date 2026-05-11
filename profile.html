@@ -331,17 +331,7 @@
               <li><a href="blogs.html?category=productivity">Productivity</a></li>
             </ul>
           </li>
-          <li class="dropdown-parent">
-            <span class="dropdown-toggle">Podcasts <i class="fas fa-chevron-down"></i></span>
-            <ul class="dropdown-menu">
-              <li><a href="podcasts.html?category=all" class="all-cat">All Categories</a></li>
-              <li><a href="podcasts.html?category=technology">Technology</a></li>
-              <li><a href="podcasts.html?category=lifestyle">Lifestyle</a></li>
-              <li><a href="podcasts.html?category=design">Design</a></li>
-              <li><a href="podcasts.html?category=culture">Culture</a></li>
-              <li><a href="podcasts.html?category=productivity">Productivity</a></li>
-            </ul>
-          </li>
+
           <li><a href="profile.html">Profile</a></li>
           <li><a href="about.html">About</a></li>
           <li><button class="theme-toggle" id="themeToggle"><i class="fas fa-adjust"></i></button></li>
@@ -374,7 +364,6 @@
       <!-- Stats -->
       <div class="profile-stats">
         <div class="profile-stat"><span class="profile-stat-num" data-target="128">0</span><span class="profile-stat-label">Journals</span></div>
-        <div class="profile-stat"><span class="profile-stat-num" data-target="64">0</span><span class="profile-stat-label">Podcasts</span></div>
         <div class="profile-stat"><span class="profile-stat-num" data-target="3400">0</span><span class="profile-stat-label">Subscribers</span></div>
         <div class="profile-stat"><span class="profile-stat-num" data-target="12">0</span><span class="profile-stat-label">Awards</span></div>
       </div>
@@ -403,7 +392,7 @@
 
       <!-- Featured Work -->
       <div class="profile-section">
-        <div class="section-head"><h2>Featured Work</h2><p>Latest journals and podcasts handpicked for you.</p></div>
+        <div class="section-head"><h2>Featured Work</h2><p>Latest journal entries handpicked for you.</p></div>
         <div class="featured-grid">
           <div class="featured-item tilt-card">
             <div class="featured-img"><img src="https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=600&q=80" alt="" loading="lazy"></div>
@@ -463,7 +452,6 @@
         <div class="section-head"><h2>Achievements</h2><p>Milestones and recognitions along the way.</p></div>
         <div class="badges-row">
           <div class="badge-item"><div class="badge-icon"><i class="fas fa-feather-alt"></i></div><span class="badge-label">Top Writer</span><span class="badge-year">2024</span></div>
-          <div class="badge-item"><div class="badge-icon"><i class="fas fa-microphone"></i></div><span class="badge-label">Best Podcast</span><span class="badge-year">2024</span></div>
           <div class="badge-item"><div class="badge-icon"><i class="fas fa-star"></i></div><span class="badge-label">Editor's Pick</span><span class="badge-year">2025</span></div>
           <div class="badge-item"><div class="badge-icon"><i class="fas fa-globe"></i></div><span class="badge-label">Global Reach</span><span class="badge-year">2025</span></div>
           <div class="badge-item"><div class="badge-icon"><i class="fas fa-heart"></i></div><span class="badge-label">Community Choice</span><span class="badge-year">2025</span></div>
@@ -486,9 +474,9 @@
             <div class="timeline-item">
               <div class="timeline-dot"></div>
               <div class="timeline-content">
-                <h4>First Podcast Episode</h4>
+                <h4>First Audio Series</h4>
                 <div class="timeline-meta">2024 &middot; Finding a voice</div>
-                <p>Recorded the first podcast episode in a small room with a borrowed mic. Today, the podcast reaches thousands of ears across the globe.</p>
+                <p>Recorded the first audio piece in a small room with a borrowed mic. Today, our stories reach thousands of ears across the globe.</p>
               </div>
             </div>
             <div class="timeline-item">
@@ -518,7 +506,7 @@
           <div class="testi-card">
             <div class="quote-icon"><i class="fas fa-quote-left"></i></div>
             <blockquote>One of the most thoughtful journals I've come across. Every piece feels intentional and deeply human.</blockquote>
-            <div class="testi-author"><div class="testi-avatar">A</div><div><div class="testi-name">Aria Wells</div><div class="testi-role">Podcast Host</div></div></div>
+            <div class="testi-author"><div class="testi-avatar">A</div><div><div class="testi-name">Aria Wells</div><div class="testi-role">Contributor</div></div></div>
           </div>
           <div class="testi-card">
             <div class="quote-icon"><i class="fas fa-quote-left"></i></div>
@@ -570,117 +558,5 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
   <script src="js/app.js?v=3"></script>
-<div class="mini-player" id="miniPlayer">
-  <div class="mini-progress-wrap"><div class="mini-progress"><div class="mini-progress-filled" id="miniProgressFilled"></div></div></div>
-  <div class="mini-player-inner">
-    <img class="mini-cover" id="miniImg" src="" alt="">
-    <div class="mini-info">
-      <span class="mini-title" id="miniTitle"></span>
-      <span class="mini-status" id="miniStatus">Paused</span>
-    </div>
-    <div class="mini-controls">
-      <button class="mini-close" id="miniCloseBtn" aria-label="Close Podcast"><i class="fas fa-times"></i></button>
-      <button id="miniPlayBtn" aria-label="Play"><i class="fas fa-play"></i></button>
-    </div>
-  </div>
-</div>
-<script>
-(function(){
-  var pid;
-  try { pid = localStorage.getItem('podcast_id'); } catch(e) { return; }
-  if (!pid || pid === 'undefined') return;
-  if (sessionStorage.getItem('mbh-played') !== '1') return;
-  if (document.getElementById('fullPlayer')) return;
-  var el = document.getElementById('miniPlayer');
-  var ttl = localStorage.getItem('podcast_title');
-  var url = localStorage.getItem('podcast_audio');
-  if (!el || !ttl || !url) return;
-  el.style.display = 'block';
-  setTimeout(function(){ el.classList.add('active'); }, 50);
-  var img = document.getElementById('miniImg');
-  var title = document.getElementById('miniTitle');
-  if (img) img.src = localStorage.getItem('podcast_img') || '';
-  if (title) title.textContent = ttl;
-  var a = new Audio(url);
-  a.preload = 'auto';
-  var ct = parseFloat(localStorage.getItem('podcast_time')) || 0;
-  var wasPlaying = localStorage.getItem('podcast_playing') === '1';
-  var pb = document.getElementById('miniPlayBtn');
-  var st = document.getElementById('miniStatus');
-  var pf = document.getElementById('miniProgressFilled');
-  var cb = document.getElementById('miniCloseBtn');
-  var raf = null;
-  function setUI(playing){
-    if (pb) pb.innerHTML = playing ? '<i class="fas fa-pause"></i>' : '<i class="fas fa-play"></i>';
-    if (pb) pb.setAttribute('aria-label', playing ? 'Pause' : 'Play');
-    if (st) st.textContent = playing ? 'Now Playing' : 'Paused';
-  }
-  function updateProg(){
-    if (a.duration && pf) pf.style.width = (a.currentTime / a.duration * 100) + '%';
-    if (!a.paused) raf = requestAnimationFrame(updateProg);
-  }
-  function miniTryPlay(retries) {
-    retries = retries || 0;
-    if (retries > 3) { setUI(false); return; }
-    if (!a.paused) return;
-    a.play().then(function(){
-      if (ct > 0 && a.duration && ct < a.duration) a.currentTime = ct;
-      ct = 0; setUI(true);
-      raf = requestAnimationFrame(updateProg);
-    }).catch(function(){
-      setTimeout(function(){ miniTryPlay(retries + 1); }, 300);
-    });
-  }
-  if (pb) pb.addEventListener('click', function(e){
-    e.stopPropagation();
-    if (a.paused) { miniTryPlay(0); } else {
-      a.pause(); setUI(false);
-      if (raf) { cancelAnimationFrame(raf); raf = null; }
-    }
-  });
-  if (cb) cb.addEventListener('click', function(e){
-    e.stopPropagation();
-    a.pause(); a.src = '';
-    if (el) el.classList.remove('active');
-    sessionStorage.removeItem('mbh-played');
-    ['podcast_id','podcast_title','podcast_img','podcast_audio','podcast_time','podcast_playing'].forEach(function(k){ try{ localStorage.removeItem(k); }catch(ex){} });
-    setTimeout(function(){ if (el) el.style.display = 'none'; }, 300);
-  });
-  if (el) el.addEventListener('click', function(e){
-    if (e.target.closest('button') || e.target.closest('.mini-progress-wrap')) return;
-    var navId = localStorage.getItem('podcast_id');
-    if (navId && navId !== 'undefined') window.location.href = 'podcast-detail.html?id=' + navId;
-  });
-  setInterval(function(){ try {
-    localStorage.setItem('podcast_time', a.currentTime);
-    localStorage.setItem('podcast_playing', !a.paused ? '1' : '0');
-  } catch(ex){} }, 1000);
-  if (pf && a.duration > 0 && ct > 0) pf.style.width = (ct / a.duration * 100) + '%';
-  if (wasPlaying) {
-    miniTryPlay(0);
-    (function(){
-      var _r = function() {
-        document.removeEventListener('click', _r);
-        if (a && a.paused) {
-          if (ct > 0 && a.duration && ct < a.duration) a.currentTime = ct;
-          ct = 0;
-          a.play().then(function(){ setUI(true); raf = requestAnimationFrame(updateProg); }).catch(function(){ setUI(false); });
-        }
-      };
-      document.addEventListener('click', _r);
-    })();
-  } else {
-    setUI(false);
-  }
-  var prog = el ? el.querySelector('.mini-progress') : null;
-  if (prog) {
-    prog.addEventListener('click', function(e){
-      var rect = this.getBoundingClientRect();
-      var pct = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-      if (a.duration) { a.currentTime = pct * a.duration; if (pf) pf.style.width = (pct * 100) + '%'; }
-    });
-  }
-})();
-</script>
 </body>
 </html>

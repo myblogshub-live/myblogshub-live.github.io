@@ -22,7 +22,7 @@
       });
 
       // Stagger grid items
-      gsap.utils.toArray('.blogs-grid > *, .podcasts-grid > *, .podcast-home-grid > *, .podcast-episodes-grid > *, .related-grid > *, .pro-grid > *, .featured-layout > *, .blog-masonry > *, .profile-grid-2 > *, .profile-grid-3 > *, .features > *, .mission-row > *, .team-grid > *, .featured-grid > *, .vibe-grid > *, .testimonial-grid > *, .badges-row > *, .join-grid > *, .about-grid > *, .podcast-detail-grid > *').forEach(function(parent) {
+      gsap.utils.toArray('.blogs-grid > *, .podcasts-grid > *, .related-grid > *, .blog-masonry > *, .profile-grid-2 > *, .features > *, .mission-row > *, .team-grid > *, .featured-grid > *, .vibe-grid > *, .testimonial-grid > *, .badges-row > *, .join-grid > *, .about-grid > *, .podcast-detail-grid > *').forEach(function(parent) {
         var items = parent.children;
         if (items.length > 1) {
           gsap.fromTo(items, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.5, stagger: 0.06, ease: smoothCB, scrollTrigger: { trigger: parent, start: 'top 90%', toggleActions: 'play none none none', once: true } });

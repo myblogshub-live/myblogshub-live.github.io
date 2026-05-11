@@ -1,9 +1,18 @@
 (() => {
   'use strict';
 
+  var progBar = document.createElement('div');
+  progBar.id = 'scrollProgress';
+  document.body.prepend(progBar);
+  var bttBtn = document.createElement('button');
+  bttBtn.id = 'backToTop';
+  bttBtn.innerHTML = '<i class="fas fa-arrow-up"></i>';
+  document.body.appendChild(bttBtn);
+
+  var smoothCB = 'cubic-bezier(0.22, 1, 0.36, 1)';
+
   function initGSAP() {
     var isTouch = window.matchMedia('(hover: none)').matches;
-    var smoothCB = 'cubic-bezier(0.22, 1, 0.36, 1)';
 
     var pt = document.getElementById('pt');
     if (pt) {
@@ -103,6 +112,8 @@
         });
       });
     }
+
+    gsap.set(bttBtn, { opacity: 0, scale: 0.8, pointerEvents: 'none' });
 
     window.refreshScrollTriggers = function() {
       if (typeof ScrollTrigger !== 'undefined') ScrollTrigger.refresh();
@@ -295,11 +306,22 @@
   var lastScroll = 0;
   var scrollTicking = false;
 
-  if (header && navWrap) {
-    window.addEventListener('scroll', function() {
-      if (!scrollTicking) {
-        requestAnimationFrame(function() {
-          var currentScroll = window.scrollY;
+  window.addEventListener('scroll', function() {
+    if (!scrollTicking) {
+      requestAnimationFrame(function() {
+        var currentScroll = window.scrollY;
+        var docH = document.documentElement.scrollHeight - window.innerHeight;
+        var pct = docH > 0 ? (currentScroll / docH) * 100 : 0;
+        progBar.style.width = pct + '%';
+        progBar.style.opacity = pct > 0 ? '1' : '0';
+
+        if (currentScroll > 500) {
+          gsap.to(bttBtn, { opacity: 1, scale: 1, pointerEvents: 'auto', duration: 0.4, ease: smoothCB, overwrite: 'auto' });
+        } else {
+          gsap.to(bttBtn, { opacity: 0, scale: 0.8, pointerEvents: 'none', duration: 0.3, ease: smoothCB, overwrite: 'auto' });
+        }
+
+        if (header && navWrap) {
           if (currentScroll > 60) navWrap.classList.add('scrolled');
           else navWrap.classList.remove('scrolled');
           if (currentScroll > 100) {
@@ -307,13 +329,19 @@
           } else {
             header.classList.remove('hidden');
           }
-          lastScroll = currentScroll;
-          scrollTicking = false;
-        });
-        scrollTicking = true;
-      }
-    }, { passive: true });
-  }
+        }
+        lastScroll = currentScroll;
+        scrollTicking = false;
+      });
+      scrollTicking = true;
+    }
+  }, { passive: true });
+
+  bttBtn.addEventListener('click', function() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    bttBtn.style.transform = 'scale(0.85)';
+    setTimeout(function() { bttBtn.style.transform = ''; }, 150);
+  });
 
   document.querySelectorAll('a[href^="#"]').forEach(function(a) {
     a.addEventListener('click', function(e) {

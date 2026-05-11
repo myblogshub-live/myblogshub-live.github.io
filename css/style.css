@@ -372,6 +372,21 @@ body.focus-mode .container { padding: 0 clamp(30px,6vw,60px); }
   section { content-visibility: auto; contain-intrinsic-size: 1px 500px; }
 }
 
+/* ===== SCROLL PROGRESS BAR ===== */
+#scrollProgress { position: fixed; top: 0; left: 0; width: 0; height: 2px; background: var(--text-color); z-index: 10001; pointer-events: none; transition: opacity 0.4s; }
+
+/* ===== BACK TO TOP ===== */
+#backToTop {
+  position: fixed; bottom: 30px; right: 30px; width: 44px; height: 44px;
+  border-radius: 50%; background: var(--text-color); color: var(--bg-color);
+  border: none; cursor: pointer; z-index: 9998; display: flex;
+  align-items: center; justify-content: center; font-size: 1rem;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1); pointer-events: none; opacity: 0;
+  transform: scale(0.8); transition: background 0.3s, color 0.3s;
+}
+#backToTop:hover { transform: scale(1.1) !important; opacity: 0.8 !important; }
+@media (max-width: 768px) { #backToTop { bottom: 20px; right: 20px; width: 38px; height: 38px; font-size: 0.85rem; } }
+
 /* ===== WORD ANIMATION ===== */
 .word { display: inline-block; overflow: hidden; vertical-align: bottom; }
 .word-inner { display: inline-block; }

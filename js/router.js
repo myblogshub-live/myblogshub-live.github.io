@@ -60,8 +60,13 @@
     });
   }
 
+  function needsFullNav(href) {
+    return href.indexOf('blogs.html') !== -1 || href.indexOf('podcasts.html') !== -1 || href.indexOf('podcast-detail.html') !== -1;
+  }
+
   function navigate(href, isPop) {
     if (href === currentPath) { if (isPop) window.location.reload(); return; }
+    if (needsFullNav(href)) { window.location.href = href; return; }
     fetch(href).then(function(r) { return r.text(); }).then(function(html) {
       var d = new DOMParser().parseFromString(html, 'text/html');
       var nm = d.querySelector('main');

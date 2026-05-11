@@ -2,24 +2,26 @@ const podcastData = [
   {
     id: 0, title: "The Future of AI Assistants", category: "technology",
     img: "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=800&q=80",
-    meta: "Technology · 32 min",
+    meta: "Technology · 2h 24min",
     audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
-    host: "Alex Chen",
-    date: "Mar 15, 2026",
-    duration: "32 min",
-    excerpt: "How AI is reshaping personal productivity and daily life.",
-    desc: "In this episode, we explore the rapidly evolving landscape of AI assistants and how they're transforming the way we work, create, and live. From smart scheduling to creative collaboration, Alex breaks down what's real, what's hype, and what the future holds for human-AI interaction."
+    youtubeId: "L_Guz73e6fw",
+    host: "Lex Fridman",
+    date: "Mar 25, 2023",
+    duration: "2h 24min",
+    excerpt: "Sam Altman on GPT-4, ChatGPT, and the future of AI.",
+    desc: "Sam Altman, CEO of OpenAI, sits down with Lex Fridman to discuss GPT-4, ChatGPT, DALL-E, AI safety, competition, and the road to AGI. A deep dive into the technology that's reshaping our world."
   },
   {
     id: 1, title: "Slow Living in a Fast World", category: "lifestyle",
     img: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?auto=format&fit=crop&w=800&q=80",
-    meta: "Lifestyle · 28 min",
+    meta: "Lifestyle · 2h 38min",
     audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
-    host: "Maya Patel",
-    date: "Mar 10, 2026",
-    duration: "28 min",
-    excerpt: "Practical steps to embrace mindfulness and simplicity.",
-    desc: "Maya shares her journey from burnout to balance, offering actionable advice on how to slow down without falling behind. This episode covers digital minimalism, intentional living, and the art of saying no in a world that always wants more."
+    youtubeId: "nDLb8_wgX50",
+    host: "Andrew Huberman",
+    date: "Jan 1, 2024",
+    duration: "2h 38min",
+    excerpt: "David Goggins on building discipline, inner strength, and resilience.",
+    desc: "David Goggins, retired Navy SEAL and ultramarathoner, shares his philosophy on building mental toughness, embracing discomfort, and finding strength through adversity. A masterclass in human potential."
   },
   {
     id: 2, title: "Design Thinking at Scale", category: "design",

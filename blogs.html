@@ -114,7 +114,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
   <script src="js/app.js?v=3"></script>
   <script>
-    var allBlogs = [
+    const allBlogs = [
       { id:0, title:'The Silence of Artificial Intelligence', category:'technology', img:'https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=800&q=80', desc:'Exploring how AI is changing the fabric of human thought.', meta:'Technology / Jan 2025' },
       { id:1, title:'Minimalist Travel', category:'lifestyle', img:'https://images.unsplash.com/photo-1516483638261-f4dbaf036963?auto=format&fit=crop&w=800&q=80', desc:'Finding freedom in the essentials while exploring the globe.', meta:'Lifestyle / 5 min read' },
       { id:2, title:'The Deep Work Habit', category:'productivity', img:'https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?auto=format&fit=crop&w=800&q=80', desc:'Achieving maximum output in a digitally distracted world.', meta:'Productivity / 8 min read' },
@@ -128,9 +128,9 @@
       { id:10, title:'AI Ethics in Practice', category:'technology', img:'https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=800&q=80', desc:'Practical approaches to ethical AI development.', meta:'Technology / 7 min read' },
       { id:11, title:'Urban Gardening Secrets', category:'lifestyle', img:'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?auto=format&fit=crop&w=800&q=80', desc:'Growing your own food in the heart of the city.', meta:'Lifestyle / 4 min read' }
     ];
-    var currentCategory = 'all';
-    var urlParams = new URLSearchParams(window.location.search);
-    var initialCat = urlParams.get('category') || 'all';
+    let currentCategory = 'all';
+    const urlParams = new URLSearchParams(window.location.search);
+    const initialCat = urlParams.get('category') || 'all';
     if (initialCat !== 'all') currentCategory = initialCat;
 
     function renderBlogs(filter='all', searchTerm='') {
@@ -160,12 +160,10 @@
       renderBlogs(cat);
       const url = new URL(window.location); url.searchParams.set('category', cat); window.history.replaceState({}, '', url);
     }
-    function initBlogsPage() {
-      if (currentCategory !== 'all') { var pill = document.querySelector('#catFilters [data-cat="' + currentCategory + '"]'); if (pill) pill.classList.add('active'); renderBlogs(currentCategory); }
+    document.addEventListener('DOMContentLoaded', () => {
+      if (currentCategory !== 'all') { const pill = document.querySelector(`#catFilters [data-cat="${currentCategory}"]`); if (pill) pill.classList.add('active'); renderBlogs(currentCategory); }
       else renderBlogs('all');
-    }
-    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initBlogsPage);
-    else initBlogsPage();
+    });
   </script>
 <div class="mini-player" id="miniPlayer">
   <div class="mini-progress-wrap"><div class="mini-progress"><div class="mini-progress-filled" id="miniProgressFilled"></div></div></div>

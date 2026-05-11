@@ -209,6 +209,9 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
   <script src="js/app.js?v=3"></script>
+  <script src="js/podcast-data.js?v=3"></script>
+  <script src="js/blog-data.js?v=3"></script>
+  <script src="js/router.js?v=1"></script>
 <div class="mini-player" id="miniPlayer">
   <div class="mini-progress-wrap"><div class="mini-progress"><div class="mini-progress-filled" id="miniProgressFilled"></div></div></div>
   <div class="mini-player-inner">
@@ -288,7 +291,10 @@
   if (el) el.addEventListener('click', function(e){
     if (e.target.closest('button') || e.target.closest('.mini-progress-wrap')) return;
     var navId = localStorage.getItem('podcast_id');
-    if (navId && navId !== 'undefined') window.location.href = 'podcast-detail.html?id=' + navId;
+    if (navId && navId !== 'undefined') {
+      if (window.routerNavigate) window.routerNavigate('podcast-detail.html?id=' + navId);
+      else window.location.href = 'podcast-detail.html?id=' + navId;
+    }
   });
   setInterval(function(){ try {
     localStorage.setItem('podcast_time', a.currentTime);

@@ -462,8 +462,12 @@
     miniTryPlay(0);
     (function(){
       var _r = function() {
-        if (a && a.paused) miniTryPlay(0);
         document.removeEventListener('click', _r);
+        if (a && a.paused) {
+          if (ct > 0 && a.duration && ct < a.duration) a.currentTime = ct;
+          ct = 0;
+          a.play().then(function(){ setUI(true); raf = requestAnimationFrame(updateProg); }).catch(function(){ setUI(false); });
+        }
       };
       document.addEventListener('click', _r);
     })();

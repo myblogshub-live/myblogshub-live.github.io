@@ -328,11 +328,7 @@
   } catch(ex){} }, 1000);
   if (pf && a.duration > 0 && ct > 0) pf.style.width = (ct / a.duration * 100) + '%';
   if (wasPlaying) {
-    setUI(true);
-    a.play().then(function(){
-      if (ct > 0 && a.duration && ct < a.duration) a.currentTime = ct;
-      ct = 0; raf = requestAnimationFrame(updateProg);
-    }).catch(function(){ setUI(false); });
+    miniTryPlay(0);
   } else {
     setUI(false);
   }

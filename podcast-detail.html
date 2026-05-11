@@ -280,6 +280,15 @@
       _playReq = true;
       setUILoading();
       setTimeout(function(){ tryPlay(0); }, 200);
+      var _resumeOnGesture = function() {
+        if (audio.paused) {
+          tryPlay(0);
+        }
+        document.removeEventListener('click', _resumeOnGesture);
+        document.removeEventListener('touchstart', _resumeOnGesture);
+      };
+      document.addEventListener('click', _resumeOnGesture);
+      document.addEventListener('touchstart', _resumeOnGesture);
     }
 
     playBtn.addEventListener('click', function(e) {

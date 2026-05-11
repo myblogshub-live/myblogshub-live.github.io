@@ -312,8 +312,16 @@
     localStorage.setItem('podcast_time', a.currentTime);
     localStorage.setItem('podcast_playing', !a.paused ? '1' : '0');
   } catch(ex){}   }, 1000);
-  setUI(wasPlaying);
   if (pf && a.duration > 0 && ct > 0) pf.style.width = (ct / a.duration * 100) + '%';
+  if (wasPlaying) {
+    setUI(true);
+    a.play().then(function(){
+      if (ct > 0 && a.duration && ct < a.duration) a.currentTime = ct;
+      ct = 0; raf = requestAnimationFrame(updateProg);
+    }).catch(function(){ setUI(false); });
+  } else {
+    setUI(false);
+  }
   var prog = el ? el.querySelector('.mini-progress') : null;
   if (prog) {
     prog.addEventListener('click', function(e){

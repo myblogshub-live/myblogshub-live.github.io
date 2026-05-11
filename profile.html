@@ -649,7 +649,10 @@
   if (el) el.addEventListener('click', function(e){
     if (e.target.closest('button') || e.target.closest('.mini-progress-wrap')) return;
     var navId = localStorage.getItem('podcast_id');
-    if (navId && navId !== 'undefined') window.location.href = 'podcast-detail.html?id=' + navId;
+    if (navId && navId !== 'undefined') {
+      if (window.routerNavigate) window.routerNavigate('podcast-detail.html?id=' + navId);
+      else window.location.href = 'podcast-detail.html?id=' + navId;
+    }
   });
   setInterval(function(){ try {
     localStorage.setItem('podcast_time', a.currentTime);

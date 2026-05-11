@@ -275,6 +275,13 @@
       });
     }
 
+    var _wasPlaying = localStorage.getItem('podcast_playing') === '1';
+    if (_wasPlaying && _savedId === id) {
+      _playReq = true;
+      setUILoading();
+      setTimeout(function(){ tryPlay(0); }, 200);
+    }
+
     playBtn.addEventListener('click', function(e) {
       e.stopPropagation();
       if (!audio.paused) {

@@ -357,8 +357,9 @@
   setInterval(function(){ try {
     localStorage.setItem('podcast_time', a.currentTime);
     localStorage.setItem('podcast_playing', !a.paused ? '1' : '0');
-  } catch(ex){} }, 1000);
-  setUI(false);
+  } catch(ex){}   }, 1000);
+  setUI(wasPlaying);
+  if (pf && a.duration > 0 && ct > 0) pf.style.width = (ct / a.duration * 100) + '%';
   var prog = el ? el.querySelector('.mini-progress') : null;
   if (prog) {
     prog.addEventListener('click', function(e){

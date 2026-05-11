@@ -66,17 +66,17 @@
   <main>
     <div class="container">
       <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Home</a>
-      <div class="podcasts-header">
+      <div class="podcasts-header reveal">
         <h2>All Podcasts</h2>
         <p>Listen to inspiring conversations, stories, and deep dives from our creators.</p>
       </div>
-      <div class="search-wrap">
+      <div class="search-wrap reveal" data-reveal-delay="100">
         <div class="search-box">
           <i class="fas fa-search"></i>
           <input type="text" id="podcastSearch" placeholder="Search podcasts..." oninput="filterPodcasts()">
         </div>
       </div>
-      <div class="cat-filters" id="catFilters">
+      <div class="cat-filters reveal" id="catFilters" data-reveal-delay="200">
         <a href="index.html" class="cat-pill all-pill">All</a>
         <button class="cat-pill ripple-btn" data-cat="technology" onclick="setCategory('technology')">Technology</button>
         <button class="cat-pill ripple-btn" data-cat="lifestyle" onclick="setCategory('lifestyle')">Lifestyle</button>
@@ -236,8 +236,9 @@
   setInterval(function(){ try {
     localStorage.setItem('podcast_time', a.currentTime);
     localStorage.setItem('podcast_playing', !a.paused ? '1' : '0');
-  } catch(ex){} }, 1000);
-  setUI(false);
+  } catch(ex){}   }, 1000);
+  setUI(wasPlaying);
+  if (pf && a.duration > 0 && ct > 0) pf.style.width = (ct / a.duration * 100) + '%';
   var prog = el ? el.querySelector('.mini-progress') : null;
   if (prog) {
     prog.addEventListener('click', function(e){

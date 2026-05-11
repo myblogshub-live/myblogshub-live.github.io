@@ -104,7 +104,7 @@
     <div class="container">
       <a href="podcasts.html" class="back-btn"><i class="fas fa-arrow-left"></i> Back to Podcasts</a>
       <div class="podcast-detail-wrap">
-        <div class="podcast-detail-grid">
+        <div class="podcast-detail-grid reveal">
           <div class="podcast-cover-wrap">
             <img id="podcastCover" src="" alt="Podcast cover">
             <div class="podcast-cover-glow"></div>
@@ -262,23 +262,29 @@
       if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
     }
 
+    function tryPlay(retries) {
+      retries = retries || 0;
+      if (retries > 3) { setUIPaused(); _playReq = false; return; }
+      if (!audio.paused) return;
+      audio.play().then(function() {
+        _playReq = true;
+        _everStarted = true;
+        setUIPlaying();
+      }).catch(function() {
+        setTimeout(function() { tryPlay(retries + 1); }, 300);
+      });
+    }
+
     playBtn.addEventListener('click', function(e) {
       e.stopPropagation();
-      if (_playReq && _everStarted) {
-        _playReq = false;
+      if (!audio.paused) {
         audio.pause();
+        _playReq = false;
         setUIPaused();
         saveState();
         return;
       }
-      if (_playReq && !_everStarted) {
-        if (!audio.src || audio.src === window.location.href) {
-          audio.src = ep.audio;
-          audio.load();
-        }
-        audio.play();
-        return;
-      }
+      if (audio.ended) { audio.currentTime = 0; }
       _playReq = true;
       _everStarted = false;
       setUILoading();
@@ -294,7 +300,7 @@
         audio.src = ep.audio;
         audio.load();
       }
-      audio.play();
+      tryPlay(0);
     });
 
     if (audio.readyState >= 1) totalTimeEl.textContent = formatTime(audio.duration);
@@ -485,8 +491,9 @@
   setInterval(function(){ try {
     localStorage.setItem('podcast_time', a.currentTime);
     localStorage.setItem('podcast_playing', !a.paused ? '1' : '0');
-  } catch(ex){} }, 1000);
-  setUI(false);
+  } catch(ex){}   }, 1000);
+  setUI(wasPlaying);
+  if (pf && a.duration > 0 && ct > 0) pf.style.width = (ct / a.duration * 100) + '%';
   var prog = el ? el.querySelector('.mini-progress') : null;
   if (prog) {
     prog.addEventListener('click', function(e){

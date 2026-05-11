@@ -358,13 +358,10 @@
     <div class="container">
       <!-- Hero -->
       <div class="profile-hero">
-        <div class="profile-avatar">
-          <span class="avatar-placeholder">H</span>
-        </div>
-        <div class="role-tag"><span class="status-dot"></span> Available for collaborations</div>
+        <div class="profile-avatar"><div class="avatar-placeholder">H</div></div>
         <h1>H.x.H</h1>
-        <div class="role-tag"><i class="fas fa-feather-alt" style="font-size:0.65rem;"></i> Writer & Curator <span class="dot">&middot;</span> <i class="fas fa-microphone" style="font-size:0.65rem;"></i> Podcaster <span class="dot">&middot;</span> <i class="fas fa-palette" style="font-size:0.65rem;"></i> Designer</div>
-        <p class="bio">Crafting stories at the intersection of technology, culture, and human experience. Building a sanctuary for thoughtful minds in a noisy world.</p>
+        <div class="role-tag"><span class="status-dot"></span> Writer, Curator, Storyteller</div>
+        <p class="bio">Building a home for words that matter. Curating stories at the intersection of technology, design, and human experience.</p>
         <div class="profile-social">
           <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
           <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
@@ -642,8 +639,9 @@
   setInterval(function(){ try {
     localStorage.setItem('podcast_time', a.currentTime);
     localStorage.setItem('podcast_playing', !a.paused ? '1' : '0');
-  } catch(ex){} }, 1000);
-  setUI(false);
+  } catch(ex){}   }, 1000);
+  setUI(wasPlaying);
+  if (pf && a.duration > 0 && ct > 0) pf.style.width = (ct / a.duration * 100) + '%';
   var prog = el ? el.querySelector('.mini-progress') : null;
   if (prog) {
     prog.addEventListener('click', function(e){

@@ -155,11 +155,11 @@
   <div id="closeBtn" onclick="toggleMenu()">&times;</div>
 
   <main>
-    <section class="hero container">
+    <section class="hero container" data-parallax="0.08">
       <span class="hero-tag reveal">Insights · Culture · Lifestyle</span>
       <h1 class="reveal">Words that <span>resonate.</span><br>Ideas that inspire.</h1>
     </section>
-    <section class="container">
+    <section class="container reveal">
       <div class="filter-bar reveal">
         <button class="filter-item active ripple-btn">Latest Journals</button>
         <button class="filter-item ripple-btn">Technology</button>
@@ -296,8 +296,9 @@
   setInterval(function(){ try {
     localStorage.setItem('podcast_time', a.currentTime);
     localStorage.setItem('podcast_playing', !a.paused ? '1' : '0');
-  } catch(ex){} }, 1000);
-  setUI(false);
+  } catch(ex){}   }, 1000);
+  setUI(wasPlaying);
+  if (pf && a.duration > 0 && ct > 0) pf.style.width = (ct / a.duration * 100) + '%';
   var prog = el ? el.querySelector('.mini-progress') : null;
   if (prog) {
     prog.addEventListener('click', function(e){

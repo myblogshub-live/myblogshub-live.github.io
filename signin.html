@@ -148,13 +148,13 @@
 
   <main>
     <div class="container">
-      <div class="signin-wrap">
-        <a href="join-hub.html" class="back-link"><i class="fas fa-arrow-left"></i> Back to Join</a>
-        <div class="signin-header">
-          <h1>Welcome back</h1>
-          <p>Sign in to continue your journey</p>
-        </div>
-        <div class="signin-card">
+    <div class="signin-wrap">
+      <a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Back to Home</a>
+      <div class="signin-header reveal">
+        <h1>Welcome Back</h1>
+        <p>Sign in to continue your journey.</p>
+      </div>
+      <div class="signin-card reveal" data-reveal-delay="150">
           <form onsubmit="event.preventDefault();const btn=this.querySelector('button[type=submit]');const t=btn.textContent;btn.textContent='Welcome!';btn.style.opacity='0.8';setTimeout(()=>{btn.textContent=t;btn.style.opacity='1'},2000);">
             <div class="input-group">
               <div class="input-wrap">
@@ -278,8 +278,9 @@
   setInterval(function(){ try {
     localStorage.setItem('podcast_time', a.currentTime);
     localStorage.setItem('podcast_playing', !a.paused ? '1' : '0');
-  } catch(ex){} }, 1000);
-  setUI(false);
+  } catch(ex){}   }, 1000);
+  setUI(wasPlaying);
+  if (pf && a.duration > 0 && ct > 0) pf.style.width = (ct / a.duration * 100) + '%';
   var prog = el ? el.querySelector('.mini-progress') : null;
   if (prog) {
     prog.addEventListener('click', function(e){

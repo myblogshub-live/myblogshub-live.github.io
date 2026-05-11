@@ -270,13 +270,13 @@
   <main>
     <div class="container">
       <div class="join-header">
-        <div class="badge"><span class="badge-dot"></span> Join 500+ Creators</div>
+        <div class="badge"><span class="badge-dot"></span> Join the Community</div>
         <h1>Become a Member</h1>
-        <p>Unlock exclusive journals, ad-free podcasts, early releases, and a weekly digest — crafted for curious minds.</p>
-        <button class="hero-cta ripple-btn" onclick="document.getElementById('signupForm').scrollIntoView({behavior:'smooth'})">Get Started <i class="fas fa-arrow-right"></i></button>
+        <p>Unlock exclusive content, behind-the-scenes stories, and a community of curious minds.</p>
+        <button class="hero-cta" onclick="window.location.href='signin.html'">Get Started <i class="fas fa-arrow-right"></i></button>
       </div>
 
-      <div class="stats-row">
+      <div class="stats-row" data-reveal-delay="100">
         <div class="stat-item"><span class="stat-num">500+</span><span class="stat-label">Members</span></div>
         <div class="stat-item"><span class="stat-num">200+</span><span class="stat-label">Journals</span></div>
         <div class="stat-item"><span class="stat-num">50+</span><span class="stat-label">Podcasts</span></div>
@@ -441,8 +441,9 @@
   setInterval(function(){ try {
     localStorage.setItem('podcast_time', a.currentTime);
     localStorage.setItem('podcast_playing', !a.paused ? '1' : '0');
-  } catch(ex){} }, 1000);
-  setUI(false);
+  } catch(ex){}   }, 1000);
+  setUI(wasPlaying);
+  if (pf && a.duration > 0 && ct > 0) pf.style.width = (ct / a.duration * 100) + '%';
   var prog = el ? el.querySelector('.mini-progress') : null;
   if (prog) {
     prog.addEventListener('click', function(e){

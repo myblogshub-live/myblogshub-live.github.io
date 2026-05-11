@@ -191,5 +191,21 @@ const allBlogs = [
       <p>My advice for anyone starting an urban garden: start small. A single tomato plant in a pot. A few herbs on a windowsill. The secret is not in the size of your space but in the consistency of your attention. Water, light, patience — these are the real ingredients.</p>
       <p>When you eat a tomato you grew yourself, you taste more than the fruit. You taste the sun, the soil, the care. And in a city of concrete and steel, that taste is nothing short of revolutionary.</p>
     `
+  },
+  {
+    id: 12,
+    title:'Grammarly: Professional Writing Made Simple',
+    category:'productivity',
+    img:'https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=800&q=80',
+    desc:'An AI-powered writing assistant that helps you write clearly and confidently everywhere you type.',
+    meta:'Productivity / 4 min read',
+    body: `
+      <p>Writing well is a skill that can make a huge difference — whether you are sending an important email, writing an assignment, or just trying to express yourself clearly. That is where Grammarly comes in.</p>
+      <p>Grammarly is an AI-powered writing assistant that works quietly in the background while you type. It catches grammar mistakes, fixes spelling errors, and suggests better ways to say things — all in real time. No more rereading your email five times wondering if it sounds right.</p>
+      <p>What makes Grammarly genuinely useful is its tone detection feature. It does not just fix your mistakes — it tells you how your message might come across to the reader. Too formal? Too casual? Grammarly lets you know before you hit send.</p>
+      <p>The best part is that it works almost everywhere — Gmail, Google Docs, Microsoft Word, LinkedIn, and even most browsers. You do not need to copy-paste your text anywhere. Just install it once and it works silently wherever you write.</p>
+      <p>Whether you are a student trying to write better assignments, a professional sending important emails, or just someone who wants to communicate more clearly — Grammarly is genuinely worth trying.</p>
+      <p style="text-align:center;margin-top:40px;"><a href="https://grammarly.com" target="_blank" rel="noopener" style="display:inline-block;padding:14px 36px;background:var(--text-color);color:var(--bg-color);border-radius:100px;font-weight:700;font-size:0.85rem;text-transform:uppercase;letter-spacing:1.5px;text-decoration:none;transition:all 0.3s;">Get Grammarly Free &rarr;</a></p>
+    `
   }
 ];

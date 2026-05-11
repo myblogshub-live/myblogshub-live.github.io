@@ -528,12 +528,10 @@
     miniTryPlay();
     (function(){
       var _r = function() {
-        if (a && a.paused) miniTryPlay();
+        if (a && a.paused) miniTryPlay(0);
         document.removeEventListener('click', _r);
-        document.removeEventListener('touchstart', _r);
       };
       document.addEventListener('click', _r);
-      document.addEventListener('touchstart', _r);
     })();
   } else {
     setUI(false);

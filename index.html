@@ -315,6 +315,15 @@
   if (pf && a.duration > 0 && ct > 0) pf.style.width = (ct / a.duration * 100) + '%';
   if (wasPlaying) {
     miniTryPlay(0);
+    (function(){
+      var _r = function() {
+        if (a && a.paused) miniTryPlay(0);
+        document.removeEventListener('click', _r);
+        document.removeEventListener('touchstart', _r);
+      };
+      document.addEventListener('click', _r);
+      document.addEventListener('touchstart', _r);
+    })();
   } else {
     setUI(false);
   }

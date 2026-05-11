@@ -372,4 +372,11 @@ body.focus-mode .container { padding: 0 clamp(30px,6vw,60px); }
   section { content-visibility: auto; contain-intrinsic-size: 1px 500px; }
 }
 
+/* ===== WORD ANIMATION ===== */
+.word { display: inline-block; overflow: hidden; vertical-align: bottom; }
+.word-inner { display: inline-block; }
+
+/* ===== PAGE TRANSITION OVERLAY ===== */
+#pt { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-color); z-index: 9999; pointer-events: none; display: none; transform-origin: bottom; }
+
 

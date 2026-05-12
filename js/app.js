@@ -4,16 +4,6 @@
   var progBar = document.createElement('div');
   progBar.id = 'scrollProgress';
   document.body.prepend(progBar);
-  var riderWrap = document.createElement('div');
-  riderWrap.id = 'riderWrap';
-  var riderLine = document.createElement('div');
-  riderLine.id = 'riderLine';
-  var riderBtn = document.createElement('button');
-  riderBtn.id = 'riderBtn';
-  riderBtn.innerHTML = '<i class="fas fa-arrow-up"></i>';
-  riderWrap.appendChild(riderLine);
-  riderWrap.appendChild(riderBtn);
-  document.body.appendChild(riderWrap);
 
   var smoothCB = 'cubic-bezier(0.22, 1, 0.36, 1)';
 
@@ -124,21 +114,6 @@
         });
       });
     }
-
-    (function() {
-      var rl = document.getElementById('riderLine');
-      var rb = document.getElementById('riderBtn');
-      if (rl && !rl.dataset.animated) {
-        rl.dataset.animated = '1';
-        var baseH = window.innerWidth <= 420 ? 35 : window.innerWidth <= 768 ? 45 : 60;
-        gsap.set(rl, { height: 0 });
-        gsap.to(rl, { height: baseH, duration: 0.5, ease: 'power3.inOut', delay: 0.4 });
-      }
-      if (rb && !rb.dataset.animated) {
-        rb.dataset.animated = '1';
-        gsap.fromTo(rb, { opacity: 0, scale: 0.35, y: -8 }, { opacity: 1, scale: 1, y: 0, duration: 0.5, ease: 'back.out(2.5)', delay: 0.6 });
-      }
-    })();
 
     window.refreshScrollTriggers = function() {
       if (typeof ScrollTrigger !== 'undefined') ScrollTrigger.refresh();
@@ -342,11 +317,6 @@
       progBar.style.width = pct + '%';
       progBar.style.opacity = pct > 0 ? '1' : '0';
 
-      var baseH = window.innerWidth <= 420 ? 35 : window.innerWidth <= 768 ? 45 : 60;
-      var maxRiderY = window.innerHeight - 142;
-      var riderY = docH > 0 ? (currentScroll / docH) * maxRiderY : 0;
-      riderLine.style.height = (baseH + riderY) + 'px';
-
       if (header && navWrap) {
         if (currentScroll > 60) navWrap.classList.add('scrolled');
         else navWrap.classList.remove('scrolled');
@@ -360,12 +330,6 @@
       scrollTicking = false;
     });
   }, { passive: true });
-
-  riderBtn.addEventListener('click', function() {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    riderLine.style.height = (window.innerWidth <= 420 ? 35 : window.innerWidth <= 768 ? 45 : 60) + 'px';
-    gsap.fromTo(riderBtn, { scale: 0.8 }, { scale: 1, duration: 0.3, ease: 'power2.out' });
-  });
 
   document.querySelectorAll('a[href^="#"]').forEach(function(a) {
     a.addEventListener('click', function(e) {

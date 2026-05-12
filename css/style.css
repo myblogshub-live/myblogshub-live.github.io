@@ -375,55 +375,6 @@ body.focus-mode .container { padding: 0 clamp(30px,6vw,60px); }
 /* ===== SCROLL PROGRESS BAR ===== */
 #scrollProgress { position: fixed; top: 0; left: 0; width: 0; height: 2px; background: var(--text-color); z-index: 10001; pointer-events: none; transition: opacity 0.4s; will-change: width, opacity; transform: translateZ(0); }
 
-/* ===== SCROLL RIDER ===== */
-#riderWrap {
-  position: fixed; right: 24px; top: 0; z-index: 999;
-  display: flex; flex-direction: column; align-items: center;
-  pointer-events: none; transform: translateZ(0);
-}
-#riderWrap::before {
-  content: ''; display: block; width: 4px; height: 4px;
-  border-radius: 50%; background: var(--text-color);
-  flex-shrink: 0; opacity: 0.25;
-}
-#riderLine {
-  width: 1px; height: 60px; min-height: 60px;
-  background: linear-gradient(180deg, var(--border-color) 20%, var(--sub-text));
-  flex-shrink: 0; will-change: height;
-}
-#riderBtn {
-  pointer-events: auto; cursor: pointer; user-select: none;
-  width: 42px; height: 42px; border-radius: 50%; border: none;
-  background: var(--text-color); color: var(--bg-color);
-  display: flex; align-items: center; justify-content: center;
-  box-shadow: var(--shadow-md), 0 0 0 1.5px var(--border-color);
-  transition: box-shadow 0.3s, opacity 0.3s;
-  opacity: 0.92;
-}
-#riderBtn:hover {
-  box-shadow: var(--shadow-lg), 0 0 0 1.5px var(--text-color);
-  opacity: 1;
-}
-#riderBtn i {
-  font-size: 0.8rem; line-height: 1;
-  transition: transform 0.3s var(--smooth);
-}
-#riderBtn:hover i { transform: translateY(-3px); }
-@media (max-width: 768px) {
-  #riderWrap { right: 16px; }
-  #riderLine { height: 45px; min-height: 45px; }
-  #riderBtn { width: 36px; height: 36px; }
-  #riderBtn i { font-size: 0.7rem; }
-  #riderWrap::before { width: 3px; height: 3px; }
-}
-@media (max-width: 420px) {
-  #riderWrap { right: 10px; }
-  #riderLine { height: 35px; min-height: 35px; }
-  #riderBtn { width: 32px; height: 32px; }
-  #riderBtn i { font-size: 0.6rem; }
-  #riderWrap::before { width: 2px; height: 2px; }
-}
-
 /* ===== WORD ANIMATION ===== */
 .word { display: inline-block; overflow: hidden; vertical-align: bottom; }
 .word-inner { display: inline-block; will-change: transform; }

@@ -4,10 +4,16 @@
   var progBar = document.createElement('div');
   progBar.id = 'scrollProgress';
   document.body.prepend(progBar);
-  var ftBtn = document.createElement('button');
-  ftBtn.id = 'floatTop';
-  ftBtn.innerHTML = '<i class="fas fa-arrow-up"></i>';
-  document.body.appendChild(ftBtn);
+  var spWrap = document.createElement('div');
+  spWrap.id = 'stringPendant';
+  var spStr = document.createElement('div');
+  spStr.id = 'pendantString';
+  var spBtn = document.createElement('button');
+  spBtn.id = 'pendantBtn';
+  spBtn.innerHTML = '<i class="fas fa-arrow-up"></i>';
+  spWrap.appendChild(spStr);
+  spWrap.appendChild(spBtn);
+  document.body.appendChild(spWrap);
 
   var smoothCB = 'cubic-bezier(0.22, 1, 0.36, 1)';
 
@@ -113,13 +119,11 @@
       });
     }
 
-    if (!isTouch) {
-      gsap.to(ftBtn, { scale: 1.06, duration: 1.5, ease: 'sine.inOut', yoyo: true, repeat: -1 });
-      ftBtn.addEventListener('mouseenter', function() {
-        gsap.to(ftBtn, { scale: 1.15, duration: 0.25, ease: 'power2.out', overwrite: 'auto' });
-      });
-      ftBtn.addEventListener('mouseleave', function() {
-        gsap.to(ftBtn, { scale: 1.06, duration: 0.5, ease: 'sine.inOut', yoyo: true, repeat: -1, overwrite: 'auto' });
+    if (typeof ScrollTrigger !== 'undefined' && !isTouch) {
+      gsap.to(spWrap, {
+        y: function() { return -(document.documentElement.scrollHeight - window.innerHeight) * 0.25; },
+        ease: 'none',
+        scrollTrigger: { trigger: document.body, start: 'top top', end: 'bottom bottom', scrub: 0.3 }
       });
     }
 
@@ -341,9 +345,10 @@
     }
   }, { passive: true });
 
-  ftBtn.addEventListener('click', function() {
+  spBtn.addEventListener('click', function() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    gsap.fromTo(ftBtn, { scale: 0.85 }, { scale: 1, duration: 0.3, ease: 'power2.out' });
+    gsap.fromTo(spBtn, { scale: 0.8 }, { scale: 1, duration: 0.3, ease: 'power2.out' });
+    if (typeof ScrollTrigger !== 'undefined') ScrollTrigger.refresh();
   });
 
   document.querySelectorAll('a[href^="#"]').forEach(function(a) {

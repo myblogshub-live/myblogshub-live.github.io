@@ -377,26 +377,28 @@ body.focus-mode .container { padding: 0 clamp(30px,6vw,60px); }
 
 /* ===== SCROLL RIDER ===== */
 #riderWrap {
-  position: fixed; right: 20px; top: 0; z-index: 999;
-  height: 100vh; display: flex; align-items: flex-start; padding-top: 100px; pointer-events: none;
+  position: fixed; right: 24px; top: 110px; z-index: 999;
+  display: flex; flex-direction: column; align-items: center;
+  pointer-events: none; transform: translateY(0);
 }
 #riderLine {
-  width: 1px; height: 30px; background: linear-gradient(180deg, transparent, var(--border-color));
-  flex-shrink: 0; margin: 0 auto;
+  width: 1px; height: 35px;
+  background: linear-gradient(180deg, var(--border-color), var(--sub-text));
+  flex-shrink: 0;
 }
 #riderBtn {
   pointer-events: auto; border: none; cursor: pointer;
-  width: 36px; height: 36px; border-radius: 50%;
+  width: 34px; height: 34px; border-radius: 50%;
   background: var(--text-color); color: var(--bg-color);
   display: flex; align-items: center; justify-content: center;
-  font-size: 0.75rem; box-shadow: var(--shadow-md);
-  transition: opacity 0.3s;
+  font-size: 0.7rem; box-shadow: var(--shadow-md);
+  transition: box-shadow 0.3s, opacity 0.3s;
 }
-#riderBtn { transition: box-shadow 0.3s, opacity 0.3s; }
-#riderBtn:hover { box-shadow: 0 6px 25px rgba(0,0,0,0.15); opacity: 0.85; }
+#riderBtn:hover { box-shadow: 0 6px 25px rgba(0,0,0,0.12); opacity: 0.85; }
 #riderBtn i { transition: transform 0.3s; }
-@media (max-width: 768px) { #riderBtn { width: 30px; height: 30px; font-size: 0.65rem; } #riderWrap { right: 12px; } }
-@media (max-width: 420px) { #riderBtn { width: 26px; height: 26px; font-size: 0.55rem; } #riderWrap { right: 8px; } }
+#riderBtn:hover i { transform: translateY(-2px); }
+@media (max-width: 768px) { #riderWrap { right: 16px; top: 90px; } #riderBtn { width: 30px; height: 30px; font-size: 0.65rem; } #riderLine { height: 28px; } }
+@media (max-width: 420px) { #riderWrap { right: 10px; top: 80px; } #riderBtn { width: 26px; height: 26px; font-size: 0.55rem; } #riderLine { height: 22px; } }
 
 /* ===== WORD ANIMATION ===== */
 .word { display: inline-block; overflow: hidden; vertical-align: bottom; }

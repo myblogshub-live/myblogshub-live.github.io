@@ -119,8 +119,6 @@
       });
     }
 
-    // riderBtn position handled by scroll listener below
-
     window.refreshScrollTriggers = function() {
       if (typeof ScrollTrigger !== 'undefined') ScrollTrigger.refresh();
     };
@@ -327,9 +325,9 @@
         progBar.style.width = pct + '%';
         progBar.style.opacity = pct > 0 ? '1' : '0';
 
-        var maxRiderY = window.innerHeight - 156;
+        var maxRiderY = window.innerHeight - 276;
         var riderY = docH > 0 ? (currentScroll / docH) * maxRiderY : 0;
-        riderBtn.style.transform = 'translateY(' + riderY + 'px)';
+        riderWrap.style.transform = 'translateY(' + riderY + 'px)';
 
         if (header && navWrap) {
           if (currentScroll > 60) navWrap.classList.add('scrolled');
@@ -349,7 +347,7 @@
 
   riderBtn.addEventListener('click', function() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    riderBtn.style.transform = 'translateY(0)';
+    riderWrap.style.transform = 'translateY(0)';
     gsap.fromTo(riderBtn, { scale: 0.8 }, { scale: 1, duration: 0.3, ease: 'power2.out' });
   });
 

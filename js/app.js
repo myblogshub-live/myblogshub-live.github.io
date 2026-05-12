@@ -4,16 +4,10 @@
   var progBar = document.createElement('div');
   progBar.id = 'scrollProgress';
   document.body.prepend(progBar);
-  var hangWrap = document.createElement('div');
-  hangWrap.id = 'hangWrap';
-  var hangLine = document.createElement('div');
-  hangLine.id = 'hangLine';
-  var hangBtn = document.createElement('button');
-  hangBtn.id = 'hangingBtn';
-  hangBtn.innerHTML = '<i class="fas fa-arrow-up"></i>';
-  hangWrap.appendChild(hangLine);
-  hangWrap.appendChild(hangBtn);
-  document.body.appendChild(hangWrap);
+  var ftBtn = document.createElement('button');
+  ftBtn.id = 'floatTop';
+  ftBtn.innerHTML = '<i class="fas fa-arrow-up"></i>';
+  document.body.appendChild(ftBtn);
 
   var smoothCB = 'cubic-bezier(0.22, 1, 0.36, 1)';
 
@@ -120,15 +114,12 @@
     }
 
     if (!isTouch) {
-      gsap.to(hangWrap, {
-        rotate: 2, duration: 2.5, ease: 'sine.inOut', yoyo: true, repeat: -1,
-        transformOrigin: 'top center'
+      gsap.to(ftBtn, { y: -4, duration: 1.8, ease: 'sine.inOut', yoyo: true, repeat: -1 });
+      ftBtn.addEventListener('mouseenter', function() {
+        gsap.to(ftBtn, { y: 0, scale: 1.12, duration: 0.3, ease: 'power2.out', overwrite: 'auto' });
       });
-      hangBtn.addEventListener('mouseenter', function() {
-        gsap.to(hangWrap, { rotate: 0, duration: 0.4, ease: 'power2.out', overwrite: 'auto' });
-      });
-      hangBtn.addEventListener('mouseleave', function() {
-        gsap.to(hangWrap, { rotate: 2, duration: 1.2, ease: 'sine.inOut', yoyo: true, repeat: -1, overwrite: 'auto', transformOrigin: 'top center' });
+      ftBtn.addEventListener('mouseleave', function() {
+        gsap.to(ftBtn, { y: -4, scale: 1, duration: 0.6, ease: 'sine.inOut', yoyo: true, repeat: -1, overwrite: 'auto' });
       });
     }
 
@@ -350,9 +341,9 @@
     }
   }, { passive: true });
 
-  hangBtn.addEventListener('click', function() {
+  ftBtn.addEventListener('click', function() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    gsap.fromTo(hangBtn, { scale: 0.85 }, { scale: 1, duration: 0.3, ease: 'power2.out' });
+    gsap.fromTo(ftBtn, { scale: 0.85 }, { scale: 1, duration: 0.3, ease: 'power2.out' });
   });
 
   document.querySelectorAll('a[href^="#"]').forEach(function(a) {

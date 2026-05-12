@@ -4,10 +4,10 @@
   var progBar = document.createElement('div');
   progBar.id = 'scrollProgress';
   document.body.prepend(progBar);
-  var bttBtn = document.createElement('button');
-  bttBtn.id = 'backToTop';
-  bttBtn.innerHTML = '<i class="fas fa-arrow-up"></i>';
-  document.body.appendChild(bttBtn);
+  var hangBtn = document.createElement('button');
+  hangBtn.id = 'hangingBtn';
+  hangBtn.innerHTML = '<i class="fas fa-arrow-up"></i> Top';
+  document.body.appendChild(hangBtn);
 
   var smoothCB = 'cubic-bezier(0.22, 1, 0.36, 1)';
 
@@ -113,7 +113,7 @@
       });
     }
 
-    gsap.set(bttBtn, { opacity: 0, scale: 0.8, pointerEvents: 'none' });
+    gsap.set(hangBtn, { y: -80, opacity: 0 });
 
     window.refreshScrollTriggers = function() {
       if (typeof ScrollTrigger !== 'undefined') ScrollTrigger.refresh();
@@ -315,10 +315,10 @@
         progBar.style.width = pct + '%';
         progBar.style.opacity = pct > 0 ? '1' : '0';
 
-        if (currentScroll > 500) {
-          gsap.to(bttBtn, { opacity: 1, scale: 1, pointerEvents: 'auto', duration: 0.4, ease: smoothCB, overwrite: 'auto' });
+        if (currentScroll > 300) {
+          gsap.to(hangBtn, { y: -80, opacity: 0, duration: 0.5, ease: 'power3.in', overwrite: 'auto' });
         } else {
-          gsap.to(bttBtn, { opacity: 0, scale: 0.8, pointerEvents: 'none', duration: 0.3, ease: smoothCB, overwrite: 'auto' });
+          gsap.to(hangBtn, { y: 0, opacity: 1, duration: 0.6, ease: 'power4.out', overwrite: 'auto' });
         }
 
         if (header && navWrap) {
@@ -337,10 +337,9 @@
     }
   }, { passive: true });
 
-  bttBtn.addEventListener('click', function() {
+  hangBtn.addEventListener('click', function() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    bttBtn.style.transform = 'scale(0.85)';
-    setTimeout(function() { bttBtn.style.transform = ''; }, 150);
+    gsap.to(hangBtn, { y: 0, opacity: 1, duration: 0.5, ease: 'power4.out', overwrite: 'auto' });
   });
 
   document.querySelectorAll('a[href^="#"]').forEach(function(a) {

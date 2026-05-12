@@ -392,9 +392,9 @@ body.focus-mode .container { padding: 0 clamp(30px,6vw,60px); }
   font-size: 0.75rem; box-shadow: var(--shadow-md);
   transition: opacity 0.3s;
 }
-#riderBtn:hover { transform: scale(1.12); opacity: 0.85; }
+#riderBtn { transition: box-shadow 0.3s, opacity 0.3s; }
+#riderBtn:hover { box-shadow: 0 6px 25px rgba(0,0,0,0.15); opacity: 0.85; }
 #riderBtn i { transition: transform 0.3s; }
-#riderBtn:hover i { transform: translateY(-2px); }
 @media (max-width: 768px) { #riderBtn { width: 30px; height: 30px; font-size: 0.65rem; } #riderWrap { right: 12px; } }
 @media (max-width: 420px) { #riderBtn { width: 26px; height: 26px; font-size: 0.55rem; } #riderWrap { right: 8px; } }
 

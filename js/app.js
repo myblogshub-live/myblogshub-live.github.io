@@ -144,11 +144,9 @@
 
   if (window.matchMedia('(hover: hover)').matches) {
     riderBtn.addEventListener('mouseenter', function() {
-      gsap.to(this, { scale: 1.12, duration: 0.3, ease: 'power2.out', overwrite: 'auto' });
       gsap.to(this.querySelector('i'), { y: -2, duration: 0.3, ease: 'power2.out', overwrite: 'auto' });
     });
     riderBtn.addEventListener('mouseleave', function() {
-      gsap.to(this, { scale: 1, duration: 0.4, ease: 'power2.out', overwrite: 'auto' });
       gsap.to(this.querySelector('i'), { y: 0, duration: 0.3, ease: 'power2.out', overwrite: 'auto' });
     });
     var tiltTicking = false;

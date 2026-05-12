@@ -387,9 +387,9 @@ body.focus-mode .container { padding: 0 clamp(30px,6vw,60px); }
   flex-shrink: 0; opacity: 0.5;
 }
 #riderLine {
-  width: 1px; height: 60px;
+  width: 1px; height: 60px; min-height: 60px;
   background: linear-gradient(180deg, var(--border-color) 20%, var(--sub-text));
-  flex-shrink: 0;
+  flex-shrink: 0; will-change: height;
 }
 #riderBtn {
   pointer-events: auto; border: none; cursor: pointer;
@@ -405,13 +405,13 @@ body.focus-mode .container { padding: 0 clamp(30px,6vw,60px); }
 #riderBtn:hover i { transform: translateY(-2px); }
 @media (max-width: 768px) {
   #riderWrap { right: 16px; }
-  #riderLine { height: 45px; }
+  #riderLine { height: 45px; min-height: 45px; }
   #riderBtn { width: 30px; height: 30px; font-size: 0.65rem; }
   #riderWrap::before { width: 3px; height: 3px; }
 }
 @media (max-width: 420px) {
   #riderWrap { right: 10px; }
-  #riderLine { height: 35px; }
+  #riderLine { height: 35px; min-height: 35px; }
   #riderBtn { width: 26px; height: 26px; font-size: 0.55rem; }
   #riderWrap::before { width: 2px; height: 2px; }
 }

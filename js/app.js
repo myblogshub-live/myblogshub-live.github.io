@@ -124,13 +124,13 @@
       var rb = document.getElementById('riderBtn');
       if (rl && !rl.dataset.animated) {
         rl.dataset.animated = '1';
-        var targetH = rl.offsetHeight || 60;
+        var baseH = window.innerWidth <= 420 ? 35 : window.innerWidth <= 768 ? 45 : 60;
         gsap.set(rl, { height: 0 });
-        gsap.to(rl, { height: targetH, duration: 0.65, ease: 'power3.inOut', delay: 0.5 });
+        gsap.to(rl, { height: baseH, duration: 0.5, ease: 'power3.inOut', delay: 0.4 });
       }
       if (rb && !rb.dataset.animated) {
         rb.dataset.animated = '1';
-        gsap.fromTo(rb, { opacity: 0, scale: 0.35, y: -8 }, { opacity: 1, scale: 1, y: 0, duration: 0.5, ease: 'back.out(2.5)', delay: 0.75 });
+        gsap.fromTo(rb, { opacity: 0, scale: 0.35, y: -8 }, { opacity: 1, scale: 1, y: 0, duration: 0.5, ease: 'back.out(2.5)', delay: 0.6 });
       }
     })();
 
@@ -334,9 +334,10 @@
         progBar.style.width = pct + '%';
         progBar.style.opacity = pct > 0 ? '1' : '0';
 
-        var maxRiderY = window.innerHeight - 170;
+        var baseH = window.innerWidth <= 420 ? 35 : window.innerWidth <= 768 ? 45 : 60;
+        var maxRiderY = window.innerHeight - 130;
         var riderY = docH > 0 ? (currentScroll / docH) * maxRiderY : 0;
-        riderWrap.style.transform = 'translateY(' + riderY + 'px)';
+        riderLine.style.height = (baseH + riderY) + 'px';
 
         if (header && navWrap) {
           if (currentScroll > 60) navWrap.classList.add('scrolled');
@@ -354,9 +355,10 @@
     }
   }, { passive: true });
 
+  var getBaseH = function() { return window.innerWidth <= 420 ? 35 : window.innerWidth <= 768 ? 45 : 60; };
   riderBtn.addEventListener('click', function() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    riderWrap.style.transform = 'translateY(0)';
+    riderLine.style.height = getBaseH() + 'px';
     gsap.fromTo(riderBtn, { scale: 0.8 }, { scale: 1, duration: 0.3, ease: 'power2.out' });
   });
 

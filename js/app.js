@@ -10,7 +10,7 @@
   riderLine.id = 'riderLine';
   var riderBtn = document.createElement('button');
   riderBtn.id = 'riderBtn';
-  riderBtn.innerHTML = '<i class="fas fa-arrow-up"></i><div class="grip"><span></span><span></span><span></span></div>';
+  riderBtn.innerHTML = '<i class="fas fa-arrow-up"></i>';
   riderWrap.appendChild(riderLine);
   riderWrap.appendChild(riderBtn);
   document.body.appendChild(riderWrap);
@@ -355,87 +355,10 @@
     }
   }, { passive: true });
 
-  var getBaseH = function() { return window.innerWidth <= 420 ? 35 : window.innerWidth <= 768 ? 45 : 60; };
-  var isDragging = false;
-  var dragMoved = false;
-  var dragStartY = 0;
-  var dragStartRiderY = 0;
-  var dragLatestY = 0;
-  var dragRAF = null;
-
-  function dragUpdate() {
-    var delta = dragLatestY - dragStartY;
-    var docH = document.documentElement.scrollHeight - window.innerHeight;
-    if (docH <= 0) { dragRAF = null; return; }
-    var maxRiderY = window.innerHeight - 142;
-    if (maxRiderY <= 0) { dragRAF = null; return; }
-    var newRiderY = Math.max(0, Math.min(maxRiderY, dragStartRiderY + delta));
-    window.scrollTo({ top: Math.round((newRiderY / maxRiderY) * docH), behavior: 'auto' });
-    riderLine.style.height = (getBaseH() + newRiderY) + 'px';
-    dragRAF = null;
-  }
-
-  riderBtn.addEventListener('mousedown', function(e) {
-    isDragging = true;
-    dragMoved = false;
-    dragStartY = e.clientY;
-    dragLatestY = e.clientY;
-    dragStartRiderY = parseFloat(riderLine.style.height) - getBaseH();
-    if (isNaN(dragStartRiderY) || dragStartRiderY < 0) dragStartRiderY = 0;
-    riderBtn.style.cursor = 'grabbing';
-    if (dragRAF) cancelAnimationFrame(dragRAF);
-    dragRAF = requestAnimationFrame(dragUpdate);
-    e.preventDefault();
-  });
-
-  document.addEventListener('mousemove', function(e) {
-    if (!isDragging) return;
-    var d = e.clientY - dragStartY;
-    if (Math.abs(d) > 4) dragMoved = true;
-    dragLatestY = e.clientY;
-    if (!dragRAF) dragRAF = requestAnimationFrame(dragUpdate);
-  });
-
-  document.addEventListener('mouseup', function() {
-    if (!isDragging) return;
-    isDragging = false;
-    if (dragRAF) { cancelAnimationFrame(dragRAF); dragRAF = null; }
-    riderBtn.style.cursor = '';
-    if (!dragMoved) {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      riderLine.style.height = getBaseH() + 'px';
-      gsap.fromTo(riderBtn, { scale: 0.8 }, { scale: 1, duration: 0.3, ease: 'power2.out' });
-    }
-  });
-
-  riderBtn.addEventListener('touchstart', function(e) {
-    isDragging = true;
-    dragMoved = false;
-    dragStartY = e.touches[0].clientY;
-    dragLatestY = e.touches[0].clientY;
-    dragStartRiderY = parseFloat(riderLine.style.height) - getBaseH();
-    if (isNaN(dragStartRiderY) || dragStartRiderY < 0) dragStartRiderY = 0;
-    if (dragRAF) cancelAnimationFrame(dragRAF);
-    dragRAF = requestAnimationFrame(dragUpdate);
-  }, { passive: true });
-
-  document.addEventListener('touchmove', function(e) {
-    if (!isDragging) return;
-    var d = e.touches[0].clientY - dragStartY;
-    if (Math.abs(d) > 4) dragMoved = true;
-    dragLatestY = e.touches[0].clientY;
-    if (!dragRAF) dragRAF = requestAnimationFrame(dragUpdate);
-  }, { passive: true });
-
-  document.addEventListener('touchend', function() {
-    if (!isDragging) return;
-    isDragging = false;
-    if (dragRAF) { cancelAnimationFrame(dragRAF); dragRAF = null; }
-    if (!dragMoved) {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      riderLine.style.height = getBaseH() + 'px';
-      gsap.fromTo(riderBtn, { scale: 0.8 }, { scale: 1, duration: 0.3, ease: 'power2.out' });
-    }
+  riderBtn.addEventListener('click', function() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    riderLine.style.height = (window.innerWidth <= 420 ? 35 : window.innerWidth <= 768 ? 45 : 60) + 'px';
+    gsap.fromTo(riderBtn, { scale: 0.8 }, { scale: 1, duration: 0.3, ease: 'power2.out' });
   });
 
   document.querySelectorAll('a[href^="#"]').forEach(function(a) {

@@ -119,6 +119,21 @@
       });
     }
 
+    (function() {
+      var rl = document.getElementById('riderLine');
+      var rb = document.getElementById('riderBtn');
+      if (rl && !rl.dataset.animated) {
+        rl.dataset.animated = '1';
+        var targetH = rl.offsetHeight || 60;
+        gsap.set(rl, { height: 0 });
+        gsap.to(rl, { height: targetH, duration: 0.65, ease: 'power3.inOut', delay: 0.5 });
+      }
+      if (rb && !rb.dataset.animated) {
+        rb.dataset.animated = '1';
+        gsap.fromTo(rb, { opacity: 0, scale: 0.35, y: -8 }, { opacity: 1, scale: 1, y: 0, duration: 0.5, ease: 'back.out(2.5)', delay: 0.75 });
+      }
+    })();
+
     window.refreshScrollTriggers = function() {
       if (typeof ScrollTrigger !== 'undefined') ScrollTrigger.refresh();
     };
@@ -141,12 +156,6 @@
   }
 
   if (window.matchMedia('(hover: hover)').matches) {
-    riderBtn.addEventListener('mouseenter', function() {
-      gsap.to(this.querySelector('i'), { y: -2, duration: 0.3, ease: 'power2.out', overwrite: 'auto' });
-    });
-    riderBtn.addEventListener('mouseleave', function() {
-      gsap.to(this.querySelector('i'), { y: 0, duration: 0.3, ease: 'power2.out', overwrite: 'auto' });
-    });
     var tiltTicking = false;
     document.querySelectorAll('.tilt-card').forEach(function(card) {
       var inner = card.querySelector('.tilt-card-inner') || card;
@@ -325,7 +334,7 @@
         progBar.style.width = pct + '%';
         progBar.style.opacity = pct > 0 ? '1' : '0';
 
-        var maxRiderY = window.innerHeight - 276;
+        var maxRiderY = window.innerHeight - 170;
         var riderY = docH > 0 ? (currentScroll / docH) * maxRiderY : 0;
         riderWrap.style.transform = 'translateY(' + riderY + 'px)';
 

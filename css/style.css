@@ -396,12 +396,16 @@ body.focus-mode .container { padding: 0 clamp(30px,6vw,60px); }
   width: 42px; height: 42px; border-radius: 50%; border: none;
   background: var(--text-color); color: var(--bg-color);
   display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: 1px; box-shadow: var(--shadow-md);
-  transition: box-shadow 0.4s, opacity 0.3s;
+  gap: 1px;
+  box-shadow: var(--shadow-md), 0 0 0 1.5px var(--border-color);
+  transition: box-shadow 0.3s, opacity 0.3s;
   opacity: 0.92; touch-action: none;
 }
 #riderBtn:active { cursor: grabbing; }
-#riderBtn:hover { box-shadow: var(--shadow-lg); opacity: 1; }
+#riderBtn:hover {
+  box-shadow: var(--shadow-lg), 0 0 0 1.5px var(--text-color);
+  opacity: 1;
+}
 #riderBtn i {
   font-size: 0.8rem; line-height: 1;
   animation: riderBob 2.2s ease-in-out infinite;

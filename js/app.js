@@ -357,15 +357,16 @@
 
   var getBaseH = function() { return window.innerWidth <= 420 ? 35 : window.innerWidth <= 768 ? 45 : 60; };
   var isDragging = false;
-  var dragStartY = 0;
-  var dragStartScroll = 0;
   var dragMoved = false;
+  var dragStartY = 0;
+  var dragStartRiderY = 0;
 
   riderBtn.addEventListener('mousedown', function(e) {
     isDragging = true;
     dragMoved = false;
     dragStartY = e.clientY;
-    dragStartScroll = window.scrollY;
+    dragStartRiderY = parseFloat(riderLine.style.height) - getBaseH();
+    if (isNaN(dragStartRiderY) || dragStartRiderY < 0) dragStartRiderY = 0;
     riderBtn.style.cursor = 'grabbing';
     e.preventDefault();
   });
@@ -377,8 +378,11 @@
     var docH = document.documentElement.scrollHeight - window.innerHeight;
     if (docH <= 0) return;
     var maxRiderY = window.innerHeight - 142;
-    var scrollDelta = (deltaY / maxRiderY) * docH;
-    window.scrollTo({ top: Math.max(0, Math.min(docH, dragStartScroll + scrollDelta)), behavior: 'auto' });
+    if (maxRiderY <= 0) return;
+    var newRiderY = Math.max(0, Math.min(maxRiderY, dragStartRiderY + deltaY));
+    var newScroll = Math.round((newRiderY / maxRiderY) * docH);
+    window.scrollTo({ top: newScroll, behavior: 'auto' });
+    riderLine.style.height = (getBaseH() + newRiderY) + 'px';
   });
 
   document.addEventListener('mouseup', function() {
@@ -396,7 +400,8 @@
     isDragging = true;
     dragMoved = false;
     dragStartY = e.touches[0].clientY;
-    dragStartScroll = window.scrollY;
+    dragStartRiderY = parseFloat(riderLine.style.height) - getBaseH();
+    if (isNaN(dragStartRiderY) || dragStartRiderY < 0) dragStartRiderY = 0;
   }, { passive: true });
 
   document.addEventListener('touchmove', function(e) {
@@ -406,8 +411,11 @@
     var docH = document.documentElement.scrollHeight - window.innerHeight;
     if (docH <= 0) return;
     var maxRiderY = window.innerHeight - 142;
-    var scrollDelta = (deltaY / maxRiderY) * docH;
-    window.scrollTo({ top: Math.max(0, Math.min(docH, dragStartScroll + scrollDelta)), behavior: 'auto' });
+    if (maxRiderY <= 0) return;
+    var newRiderY = Math.max(0, Math.min(maxRiderY, dragStartRiderY + deltaY));
+    var newScroll = Math.round((newRiderY / maxRiderY) * docH);
+    window.scrollTo({ top: newScroll, behavior: 'auto' });
+    riderLine.style.height = (getBaseH() + newRiderY) + 'px';
   }, { passive: true });
 
   document.addEventListener('touchend', function() {

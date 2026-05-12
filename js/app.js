@@ -4,10 +4,16 @@
   var progBar = document.createElement('div');
   progBar.id = 'scrollProgress';
   document.body.prepend(progBar);
+  var hangWrap = document.createElement('div');
+  hangWrap.id = 'hangWrap';
+  var hangLine = document.createElement('div');
+  hangLine.id = 'hangLine';
   var hangBtn = document.createElement('button');
   hangBtn.id = 'hangingBtn';
-  hangBtn.innerHTML = '<i class="fas fa-arrow-up"></i> Top';
-  document.body.appendChild(hangBtn);
+  hangBtn.innerHTML = '<i class="fas fa-arrow-up"></i>';
+  hangWrap.appendChild(hangLine);
+  hangWrap.appendChild(hangBtn);
+  document.body.appendChild(hangWrap);
 
   var smoothCB = 'cubic-bezier(0.22, 1, 0.36, 1)';
 
@@ -113,7 +119,18 @@
       });
     }
 
-    gsap.set(hangBtn, { y: -80, opacity: 0 });
+    if (!isTouch) {
+      gsap.to(hangWrap, {
+        rotate: 2, duration: 2.5, ease: 'sine.inOut', yoyo: true, repeat: -1,
+        transformOrigin: 'top center'
+      });
+      hangBtn.addEventListener('mouseenter', function() {
+        gsap.to(hangWrap, { rotate: 0, duration: 0.4, ease: 'power2.out', overwrite: 'auto' });
+      });
+      hangBtn.addEventListener('mouseleave', function() {
+        gsap.to(hangWrap, { rotate: 2, duration: 1.2, ease: 'sine.inOut', yoyo: true, repeat: -1, overwrite: 'auto', transformOrigin: 'top center' });
+      });
+    }
 
     window.refreshScrollTriggers = function() {
       if (typeof ScrollTrigger !== 'undefined') ScrollTrigger.refresh();
@@ -315,11 +332,7 @@
         progBar.style.width = pct + '%';
         progBar.style.opacity = pct > 0 ? '1' : '0';
 
-        if (currentScroll > 300) {
-          gsap.to(hangBtn, { y: -80, opacity: 0, duration: 0.5, ease: 'power3.in', overwrite: 'auto' });
-        } else {
-          gsap.to(hangBtn, { y: 0, opacity: 1, duration: 0.6, ease: 'power4.out', overwrite: 'auto' });
-        }
+
 
         if (header && navWrap) {
           if (currentScroll > 60) navWrap.classList.add('scrolled');
@@ -339,7 +352,7 @@
 
   hangBtn.addEventListener('click', function() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    gsap.to(hangBtn, { y: 0, opacity: 1, duration: 0.5, ease: 'power4.out', overwrite: 'auto' });
+    gsap.fromTo(hangBtn, { scale: 0.85 }, { scale: 1, duration: 0.3, ease: 'power2.out' });
   });
 
   document.querySelectorAll('a[href^="#"]').forEach(function(a) {

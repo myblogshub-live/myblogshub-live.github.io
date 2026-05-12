@@ -360,34 +360,46 @@
   var dragMoved = false;
   var dragStartY = 0;
   var dragStartRiderY = 0;
+  var dragLatestY = 0;
+  var dragRAF = null;
+
+  function dragUpdate() {
+    var delta = dragLatestY - dragStartY;
+    var docH = document.documentElement.scrollHeight - window.innerHeight;
+    if (docH <= 0) { dragRAF = null; return; }
+    var maxRiderY = window.innerHeight - 142;
+    if (maxRiderY <= 0) { dragRAF = null; return; }
+    var newRiderY = Math.max(0, Math.min(maxRiderY, dragStartRiderY + delta));
+    window.scrollTo({ top: Math.round((newRiderY / maxRiderY) * docH), behavior: 'auto' });
+    riderLine.style.height = (getBaseH() + newRiderY) + 'px';
+    dragRAF = null;
+  }
 
   riderBtn.addEventListener('mousedown', function(e) {
     isDragging = true;
     dragMoved = false;
     dragStartY = e.clientY;
+    dragLatestY = e.clientY;
     dragStartRiderY = parseFloat(riderLine.style.height) - getBaseH();
     if (isNaN(dragStartRiderY) || dragStartRiderY < 0) dragStartRiderY = 0;
     riderBtn.style.cursor = 'grabbing';
+    if (dragRAF) cancelAnimationFrame(dragRAF);
+    dragRAF = requestAnimationFrame(dragUpdate);
     e.preventDefault();
   });
 
   document.addEventListener('mousemove', function(e) {
     if (!isDragging) return;
-    var deltaY = e.clientY - dragStartY;
-    if (Math.abs(deltaY) > 4) dragMoved = true;
-    var docH = document.documentElement.scrollHeight - window.innerHeight;
-    if (docH <= 0) return;
-    var maxRiderY = window.innerHeight - 142;
-    if (maxRiderY <= 0) return;
-    var newRiderY = Math.max(0, Math.min(maxRiderY, dragStartRiderY + deltaY));
-    var newScroll = Math.round((newRiderY / maxRiderY) * docH);
-    window.scrollTo({ top: newScroll, behavior: 'auto' });
-    riderLine.style.height = (getBaseH() + newRiderY) + 'px';
+    var d = e.clientY - dragStartY;
+    if (Math.abs(d) > 4) dragMoved = true;
+    dragLatestY = e.clientY;
+    if (!dragRAF) dragRAF = requestAnimationFrame(dragUpdate);
   });
 
   document.addEventListener('mouseup', function() {
     if (!isDragging) return;
     isDragging = false;
+    if (dragRAF) { cancelAnimationFrame(dragRAF); dragRAF = null; }
     riderBtn.style.cursor = '';
     if (!dragMoved) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -400,27 +412,25 @@
     isDragging = true;
     dragMoved = false;
     dragStartY = e.touches[0].clientY;
+    dragLatestY = e.touches[0].clientY;
     dragStartRiderY = parseFloat(riderLine.style.height) - getBaseH();
     if (isNaN(dragStartRiderY) || dragStartRiderY < 0) dragStartRiderY = 0;
+    if (dragRAF) cancelAnimationFrame(dragRAF);
+    dragRAF = requestAnimationFrame(dragUpdate);
   }, { passive: true });
 
   document.addEventListener('touchmove', function(e) {
     if (!isDragging) return;
-    var deltaY = e.touches[0].clientY - dragStartY;
-    if (Math.abs(deltaY) > 4) dragMoved = true;
-    var docH = document.documentElement.scrollHeight - window.innerHeight;
-    if (docH <= 0) return;
-    var maxRiderY = window.innerHeight - 142;
-    if (maxRiderY <= 0) return;
-    var newRiderY = Math.max(0, Math.min(maxRiderY, dragStartRiderY + deltaY));
-    var newScroll = Math.round((newRiderY / maxRiderY) * docH);
-    window.scrollTo({ top: newScroll, behavior: 'auto' });
-    riderLine.style.height = (getBaseH() + newRiderY) + 'px';
+    var d = e.touches[0].clientY - dragStartY;
+    if (Math.abs(d) > 4) dragMoved = true;
+    dragLatestY = e.touches[0].clientY;
+    if (!dragRAF) dragRAF = requestAnimationFrame(dragUpdate);
   }, { passive: true });
 
   document.addEventListener('touchend', function() {
     if (!isDragging) return;
     isDragging = false;
+    if (dragRAF) { cancelAnimationFrame(dragRAF); dragRAF = null; }
     if (!dragMoved) {
       window.scrollTo({ top: 0, behavior: 'smooth' });
       riderLine.style.height = getBaseH() + 'px';

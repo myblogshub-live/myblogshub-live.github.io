@@ -114,12 +114,12 @@
     }
 
     if (!isTouch) {
-      gsap.to(ftBtn, { y: -4, duration: 1.8, ease: 'sine.inOut', yoyo: true, repeat: -1 });
+      gsap.to(ftBtn, { scale: 1.06, duration: 1.5, ease: 'sine.inOut', yoyo: true, repeat: -1 });
       ftBtn.addEventListener('mouseenter', function() {
-        gsap.to(ftBtn, { y: 0, scale: 1.12, duration: 0.3, ease: 'power2.out', overwrite: 'auto' });
+        gsap.to(ftBtn, { scale: 1.15, duration: 0.25, ease: 'power2.out', overwrite: 'auto' });
       });
       ftBtn.addEventListener('mouseleave', function() {
-        gsap.to(ftBtn, { y: -4, scale: 1, duration: 0.6, ease: 'sine.inOut', yoyo: true, repeat: -1, overwrite: 'auto' });
+        gsap.to(ftBtn, { scale: 1.06, duration: 0.5, ease: 'sine.inOut', yoyo: true, repeat: -1, overwrite: 'auto' });
       });
     }
 

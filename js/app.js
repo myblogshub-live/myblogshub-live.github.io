@@ -4,16 +4,16 @@
   var progBar = document.createElement('div');
   progBar.id = 'scrollProgress';
   document.body.prepend(progBar);
-  var spWrap = document.createElement('div');
-  spWrap.id = 'stringPendant';
-  var spStr = document.createElement('div');
-  spStr.id = 'pendantString';
-  var spBtn = document.createElement('button');
-  spBtn.id = 'pendantBtn';
-  spBtn.innerHTML = '<i class="fas fa-arrow-up"></i>';
-  spWrap.appendChild(spStr);
-  spWrap.appendChild(spBtn);
-  document.body.appendChild(spWrap);
+  var riderWrap = document.createElement('div');
+  riderWrap.id = 'riderWrap';
+  var riderLine = document.createElement('div');
+  riderLine.id = 'riderLine';
+  var riderBtn = document.createElement('button');
+  riderBtn.id = 'riderBtn';
+  riderBtn.innerHTML = '<i class="fas fa-arrow-up"></i>';
+  riderWrap.appendChild(riderLine);
+  riderWrap.appendChild(riderBtn);
+  document.body.appendChild(riderWrap);
 
   var smoothCB = 'cubic-bezier(0.22, 1, 0.36, 1)';
 
@@ -119,13 +119,7 @@
       });
     }
 
-    if (typeof ScrollTrigger !== 'undefined' && !isTouch) {
-      gsap.to(spWrap, {
-        y: function() { return -(document.documentElement.scrollHeight - window.innerHeight) * 0.25; },
-        ease: 'none',
-        scrollTrigger: { trigger: document.body, start: 'top top', end: 'bottom bottom', scrub: 0.3 }
-      });
-    }
+    // riderBtn position handled by scroll listener below
 
     window.refreshScrollTriggers = function() {
       if (typeof ScrollTrigger !== 'undefined') ScrollTrigger.refresh();
@@ -149,6 +143,14 @@
   }
 
   if (window.matchMedia('(hover: hover)').matches) {
+    riderBtn.addEventListener('mouseenter', function() {
+      gsap.to(this, { scale: 1.12, duration: 0.3, ease: 'power2.out', overwrite: 'auto' });
+      gsap.to(this.querySelector('i'), { y: -2, duration: 0.3, ease: 'power2.out', overwrite: 'auto' });
+    });
+    riderBtn.addEventListener('mouseleave', function() {
+      gsap.to(this, { scale: 1, duration: 0.4, ease: 'power2.out', overwrite: 'auto' });
+      gsap.to(this.querySelector('i'), { y: 0, duration: 0.3, ease: 'power2.out', overwrite: 'auto' });
+    });
     var tiltTicking = false;
     document.querySelectorAll('.tilt-card').forEach(function(card) {
       var inner = card.querySelector('.tilt-card-inner') || card;
@@ -327,7 +329,9 @@
         progBar.style.width = pct + '%';
         progBar.style.opacity = pct > 0 ? '1' : '0';
 
-
+        var maxRiderY = window.innerHeight - 156;
+        var riderY = docH > 0 ? (currentScroll / docH) * maxRiderY : 0;
+        riderBtn.style.transform = 'translateY(' + riderY + 'px)';
 
         if (header && navWrap) {
           if (currentScroll > 60) navWrap.classList.add('scrolled');
@@ -345,10 +349,10 @@
     }
   }, { passive: true });
 
-  spBtn.addEventListener('click', function() {
+  riderBtn.addEventListener('click', function() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    gsap.fromTo(spBtn, { scale: 0.8 }, { scale: 1, duration: 0.3, ease: 'power2.out' });
-    if (typeof ScrollTrigger !== 'undefined') ScrollTrigger.refresh();
+    riderBtn.style.transform = 'translateY(0)';
+    gsap.fromTo(riderBtn, { scale: 0.8 }, { scale: 1, duration: 0.3, ease: 'power2.out' });
   });
 
   document.querySelectorAll('a[href^="#"]').forEach(function(a) {

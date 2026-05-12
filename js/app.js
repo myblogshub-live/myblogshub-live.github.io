@@ -10,7 +10,7 @@
   riderLine.id = 'riderLine';
   var riderBtn = document.createElement('button');
   riderBtn.id = 'riderBtn';
-  riderBtn.innerHTML = '<i class="fas fa-arrow-up"></i>';
+  riderBtn.innerHTML = '<i class="fas fa-arrow-up"></i><div class="grip"><span></span><span></span><span></span></div>';
   riderWrap.appendChild(riderLine);
   riderWrap.appendChild(riderBtn);
   document.body.appendChild(riderWrap);
@@ -335,7 +335,7 @@
         progBar.style.opacity = pct > 0 ? '1' : '0';
 
         var baseH = window.innerWidth <= 420 ? 35 : window.innerWidth <= 768 ? 45 : 60;
-        var maxRiderY = window.innerHeight - 130;
+        var maxRiderY = window.innerHeight - 142;
         var riderY = docH > 0 ? (currentScroll / docH) * maxRiderY : 0;
         riderLine.style.height = (baseH + riderY) + 'px';
 
@@ -356,10 +356,68 @@
   }, { passive: true });
 
   var getBaseH = function() { return window.innerWidth <= 420 ? 35 : window.innerWidth <= 768 ? 45 : 60; };
-  riderBtn.addEventListener('click', function() {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    riderLine.style.height = getBaseH() + 'px';
-    gsap.fromTo(riderBtn, { scale: 0.8 }, { scale: 1, duration: 0.3, ease: 'power2.out' });
+  var isDragging = false;
+  var dragStartY = 0;
+  var dragStartScroll = 0;
+  var dragMoved = false;
+
+  riderBtn.addEventListener('mousedown', function(e) {
+    isDragging = true;
+    dragMoved = false;
+    dragStartY = e.clientY;
+    dragStartScroll = window.scrollY;
+    riderBtn.style.cursor = 'grabbing';
+    e.preventDefault();
+  });
+
+  document.addEventListener('mousemove', function(e) {
+    if (!isDragging) return;
+    var deltaY = e.clientY - dragStartY;
+    if (Math.abs(deltaY) > 4) dragMoved = true;
+    var docH = document.documentElement.scrollHeight - window.innerHeight;
+    if (docH <= 0) return;
+    var maxRiderY = window.innerHeight - 142;
+    var scrollDelta = (deltaY / maxRiderY) * docH;
+    window.scrollTo({ top: Math.max(0, Math.min(docH, dragStartScroll + scrollDelta)), behavior: 'auto' });
+  });
+
+  document.addEventListener('mouseup', function() {
+    if (!isDragging) return;
+    isDragging = false;
+    riderBtn.style.cursor = '';
+    if (!dragMoved) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      riderLine.style.height = getBaseH() + 'px';
+      gsap.fromTo(riderBtn, { scale: 0.8 }, { scale: 1, duration: 0.3, ease: 'power2.out' });
+    }
+  });
+
+  riderBtn.addEventListener('touchstart', function(e) {
+    isDragging = true;
+    dragMoved = false;
+    dragStartY = e.touches[0].clientY;
+    dragStartScroll = window.scrollY;
+  }, { passive: true });
+
+  document.addEventListener('touchmove', function(e) {
+    if (!isDragging) return;
+    var deltaY = e.touches[0].clientY - dragStartY;
+    if (Math.abs(deltaY) > 4) dragMoved = true;
+    var docH = document.documentElement.scrollHeight - window.innerHeight;
+    if (docH <= 0) return;
+    var maxRiderY = window.innerHeight - 142;
+    var scrollDelta = (deltaY / maxRiderY) * docH;
+    window.scrollTo({ top: Math.max(0, Math.min(docH, dragStartScroll + scrollDelta)), behavior: 'auto' });
+  }, { passive: true });
+
+  document.addEventListener('touchend', function() {
+    if (!isDragging) return;
+    isDragging = false;
+    if (!dragMoved) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      riderLine.style.height = getBaseH() + 'px';
+      gsap.fromTo(riderBtn, { scale: 0.8 }, { scale: 1, duration: 0.3, ease: 'power2.out' });
+    }
   });
 
   document.querySelectorAll('a[href^="#"]').forEach(function(a) {

@@ -8,15 +8,11 @@
   var smoothCB = 'cubic-bezier(0.22, 1, 0.36, 1)';
 
   function initGSAP() {
-    if (typeof Lenis !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
-      var lenis = new Lenis({ duration: 1.1, easing: function(t) { return Math.min(1, 1.001 - Math.pow(2, -10 * t)); }, orientation: 'vertical', gestureOrientation: 'vertical', smoothWheel: true, wheelMultiplier: 0.8, touchMultiplier: 1.2, autoRaf: false });
-      lenis.on('scroll', ScrollTrigger.update);
-      gsap.ticker.add(function(time) { lenis.raf(time * 1000); });
-      gsap.ticker.lagSmoothing(0);
-    }
     if (typeof ScrollTrigger !== 'undefined') {
       ScrollTrigger.config({ ignoreMobileResize: true, limitCallbacks: true });
+      ScrollTrigger.normalizeScroll(true);
     }
+    gsap.ticker.lagSmoothing(0);
 
     var isTouch = window.matchMedia('(hover: none)').matches;
     var isMobile = window.innerWidth <= 768;

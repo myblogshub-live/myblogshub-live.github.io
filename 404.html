@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>404 – Page Not Found | H.x.H</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="preconnect" href="https://cdnjs.cloudflare.com"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css?v=23">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    main { padding-top: clamp(140px, 18vh, 180px); padding-bottom: 100px; text-align: center; }
+    .error-code { font-family: 'Playfair Display', serif; font-size: clamp(6rem, 15vw, 12rem); font-weight: 900; letter-spacing: -4px; line-height: 1; color: var(--text-color); opacity: 0.15; margin-bottom: -20px; }
+    .error-title { font-family: 'Playfair Display', serif; font-size: clamp(1.5rem, 3vw, 2.5rem); font-weight: 800; color: var(--text-color); margin-bottom: 10px; }
+    .error-desc { color: var(--sub-text); font-size: clamp(0.9rem, 1.2vw, 1.05rem); max-width: 480px; margin: 0 auto 30px; line-height: 1.7; }
+    .error-actions { display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; }
+  </style>
+</head>
+<body class="light-theme">
+  <header id="mainHeader">
+    <div class="nav-wrap" id="navWrap">
+      <a href="index.html" class="logo">MyBlogsHub</a>
+      <nav>
+        <ul class="nav-links" id="navLinks">
+          <li><a href="index.html">Home</a></li>
+          <li class="dropdown-parent">
+            <span class="dropdown-toggle">Journal <i class="fas fa-chevron-down"></i></span>
+            <ul class="dropdown-menu">
+              <li><a href="blogs.html?category=all" class="all-cat">All Categories</a></li>
+              <li><a href="blogs.html?category=technology">Technology</a></li>
+              <li><a href="blogs.html?category=lifestyle">Lifestyle</a></li>
+              <li><a href="blogs.html?category=design">Design</a></li>
+              <li><a href="blogs.html?category=culture">Culture</a></li>
+              <li><a href="blogs.html?category=productivity">Productivity</a></li>
+            </ul>
+          </li>
+          <li><a href="profile.html">Profile</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><button class="theme-toggle" id="themeToggle"><i class="fas fa-adjust"></i></button></li>
+          <li><a href="join-hub.html" class="join-hub-btn ripple-btn">Join Hub</a></li>
+        </ul>
+        <button class="hamburger-icon" onclick="toggleMenu()"><i class="fas fa-bars"></i></button>
+      </nav>
+    </div>
+  </header>
+  <div id="closeBtn" onclick="toggleMenu()">&times;</div>
+  <main>
+    <div class="container reveal">
+      <div class="error-code">404</div>
+      <h1 class="error-title">This page wandered off.</h1>
+      <p class="error-desc">The journal you're looking for doesn't exist, was moved, or the link might be broken. Let's get you back on track.</p>
+      <div class="error-actions">
+        <a href="index.html" class="signin-btn ripple-btn" style="display:inline-flex;align-items:center;gap:8px;"><i class="fas fa-home"></i> Go Home</a>
+        <a href="blogs.html" class="signin-btn ripple-btn" style="display:inline-flex;align-items:center;gap:8px;background:transparent;border:1px solid var(--border-color);color:var(--text-color);"><i class="fas fa-book-open"></i> Browse Journals</a>
+      </div>
+    </div>
+  </main>
+  <footer>
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-col footer-about">
+          <div class="footer-logo">H.x.H</div>
+          <p>A sanctuary for thoughtful storytelling. We explore culture, technology, design, and the ideas shaping tomorrow.</p>
+          <div class="social-icons">
+            <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+            <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+            <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+            <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+          </div>
+        </div>
+        <div class="footer-col"><h4>Journal</h4><ul class="footer-links"><li><a href="blogs.html?category=all">Latest</a></li><li><a href="blogs.html?category=all">Popular</a></li><li><a href="blogs.html?category=all">Editors' Pick</a></li><li><a href="profile.html">Profile</a></li><li><a href="blogs.html?category=all">Archive</a></li></ul></div>
+        <div class="footer-col"><h4>Categories</h4><ul class="footer-links"><li><a href="blogs.html?category=technology">Technology</a></li><li><a href="blogs.html?category=lifestyle">Lifestyle</a></li><li><a href="blogs.html?category=design">Design</a></li><li><a href="blogs.html?category=culture">Culture</a></li></ul></div>
+        <div class="footer-col"><h4>Stay Inspired</h4><p class="newsletter-text">Weekly insights delivered to your inbox.</p><form class="newsletter-form" onsubmit="hxhNewsletter(this);return false;"><input type="email" placeholder="Your email" required><button type="submit">Subscribe</button></form></div>
+      </div>
+      <div class="footer-bottom"><span>&copy; 2025 H.x.H Journal. All rights reserved.</span><div class="footer-links-row"><a href="privacy.html">Privacy</a><span class="dot">&middot;</span><a href="terms.html">Terms</a><span class="dot">&middot;</span><a href="cookies.html">Cookies</a></div></div>
+    </div>
+  </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/app.js?v=23"></script>
+<div id="pt" style="position:fixed;top:0;left:0;width:100%;height:100%;background:var(--bg-color);z-index:9999;pointer-events:none;display:none;transform-origin:bottom;"></div>
+</body>
+</html>

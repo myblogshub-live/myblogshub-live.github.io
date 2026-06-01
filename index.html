@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://cdnjs.cloudflare.com">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <link rel="stylesheet" href="css/style.css?v=22">
+  <link rel="stylesheet" href="css/style.css?v=23">
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     .hero {
@@ -158,37 +158,10 @@
         <button class="filter-item ripple-btn">Technology</button>
         <button class="filter-item ripple-btn">Lifestyle</button>
         <button class="filter-item ripple-btn">Design</button>
+        <button class="filter-item ripple-btn">Productivity</button>
         <button class="filter-item ripple-btn">Culture</button>
       </div>
-      <div class="blog-masonry" id="blogGrid">
-        <article class="blog-card featured tilt-card">
-          <div class="card-img-wrap"><img src="https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=1200&q=80" alt="Tech" loading="lazy"></div>
-          <div class="card-content tilt-card-inner">
-            <span class="card-meta">Technology / January 2025</span>
-            <h2 class="card-title">The Silence of Artificial Intelligence.</h2>
-            <p class="card-desc">Exploring how AI is not just changing code, but the very fabric of human thought, creativity, and silence.</p>
-            <a href="post.html?id=0" class="card-link">Read Journal &rarr;</a>
-          </div>
-        </article>
-        <article class="blog-card tilt-card">
-          <div class="card-img-wrap"><img src="https://images.unsplash.com/photo-1516483638261-f4dbaf036963?auto=format&fit=crop&w=800&q=80" alt="Travel" loading="lazy"></div>
-          <div class="card-content tilt-card-inner">
-            <span class="card-meta">Lifestyle / 5 min read</span>
-            <h2 class="card-title">Minimalist Travel.</h2>
-            <p class="card-desc">Finding profound freedom in the essentials while exploring the unknown corners of the globe.</p>
-            <a href="post.html?id=1" class="card-link">Read Journal &rarr;</a>
-          </div>
-        </article>
-        <article class="blog-card tilt-card">
-          <div class="card-img-wrap"><img src="https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?auto=format&fit=crop&w=800&q=80" alt="Work" loading="lazy"></div>
-          <div class="card-content tilt-card-inner">
-            <span class="card-meta">Productivity / 8 min read</span>
-            <h2 class="card-title">The Deep Work Habit.</h2>
-            <p class="card-desc">How to achieve maximum output in a world constantly screaming for your digital attention.</p>
-            <a href="post.html?id=2" class="card-link">Read Journal &rarr;</a>
-          </div>
-        </article>
-      </div>
+      <div class="blog-masonry" id="blogGrid"></div>
     </section>
   </main>
 
@@ -207,7 +180,7 @@
         </div>
         <div class="footer-col"><h4>Journal</h4><ul class="footer-links"><li><a href="blogs.html?category=all">Latest</a></li><li><a href="blogs.html?category=all">Popular</a></li><li><a href="blogs.html?category=all">Editors' Pick</a></li><li><a href="profile.html">Profile</a></li><li><a href="blogs.html?category=all">Archive</a></li></ul></div>
         <div class="footer-col"><h4>Categories</h4><ul class="footer-links"><li><a href="blogs.html?category=technology">Technology</a></li><li><a href="blogs.html?category=lifestyle">Lifestyle</a></li><li><a href="blogs.html?category=design">Design</a></li><li><a href="blogs.html?category=culture">Culture</a></li></ul></div>
-        <div class="footer-col"><h4>Stay Inspired</h4><p class="newsletter-text">Weekly insights delivered to your inbox.</p><form class="newsletter-form" onsubmit="event.preventDefault();this.querySelector('input').value='';this.querySelector('button').textContent='Subscribed!';setTimeout(()=>this.querySelector('button').textContent='Subscribe',2000);"><input type="email" placeholder="Your email" required><button type="submit">Subscribe</button></form></div>
+        <div class="footer-col"><h4>Stay Inspired</h4><p class="newsletter-text">Weekly insights delivered to your inbox.</p><form class="newsletter-form" onsubmit="hxhNewsletter(this);return false;"><input type="email" placeholder="Your email" required><button type="submit">Subscribe</button></form></div>
       </div>
       <div class="footer-bottom"><span>&copy; 2025 H.x.H Journal. All rights reserved.</span><div class="footer-links-row"><a href="#">Privacy</a><span class="dot">&middot;</span><a href="#">Terms</a><span class="dot">&middot;</span><a href="#">Cookies</a></div></div>
     </div>
@@ -215,9 +188,30 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-  <script src="js/app.js?v=22"></script>
+  <script src="js/blog-data.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/app.js?v=23"></script>
   <script>
-    document.querySelectorAll('.filter-item').forEach(item=>{ item.addEventListener('click',function(){ document.querySelectorAll('.filter-item').forEach(b=>b.classList.remove('active')); this.classList.add('active'); }); });
+    var catMap = { 'Latest Journals':'all', 'Technology':'technology', 'Lifestyle':'lifestyle', 'Design':'design', 'Culture':'culture', 'Productivity':'productivity' };
+    var catReverse = { 'all':'Latest Journals', 'technology':'Technology', 'lifestyle':'Lifestyle', 'design':'Design', 'culture':'Culture', 'productivity':'Productivity' };
+    var currentCat = 'all';
+    function renderHomeBlogs(cat) {
+      var grid = document.getElementById('blogGrid');
+      var filtered = cat === 'all' ? allBlogs : allBlogs.filter(function(b){ return b.category === cat; });
+      if (filtered.length === 0) { grid.innerHTML = '<div class="no-results">No journals in this category yet.</div>'; return; }
+      grid.innerHTML = filtered.map(function(b,i){
+        return '<article class="blog-card' + (i===0?' featured':'') + ' tilt-card" style="animation:fadeUp 0.5s ' + (i*0.06) + 's cubic-bezier(0.19,1,0.22,1) both;"><div class="card-img-wrap"><img src="' + b.img + '" alt="' + b.title + '" loading="lazy"></div><div class="card-content tilt-card-inner"><span class="card-meta">' + b.meta + '</span><h2 class="card-title">' + b.title + '.</h2><p class="card-desc">' + b.desc + '</p><a href="post.html?id=' + b.id + '" class="card-link">Read Journal &rarr;</a></div></article>';
+      }).join('');
+    }
+    document.querySelectorAll('.filter-bar .filter-item').forEach(function(item){
+      item.addEventListener('click', function(){
+        document.querySelectorAll('.filter-bar .filter-item').forEach(function(b){ b.classList.remove('active'); });
+        this.classList.add('active');
+        currentCat = catMap[this.textContent.trim()] || 'all';
+        renderHomeBlogs(currentCat);
+      });
+    });
+    renderHomeBlogs('all');
   </script>
 
 <div id="pt" style="position:fixed;top:0;left:0;width:100%;height:100%;background:var(--bg-color);z-index:9999;pointer-events:none;display:none;transform-origin:bottom;"></div>

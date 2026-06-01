@@ -10,7 +10,6 @@
   function initGSAP() {
     if (typeof ScrollTrigger !== 'undefined') {
       ScrollTrigger.config({ ignoreMobileResize: true, limitCallbacks: true });
-      ScrollTrigger.normalizeScroll(true);
     }
     gsap.ticker.lagSmoothing(0);
 
@@ -264,25 +263,9 @@
 
   resetDropdowns();
 
-  var resizeRAF = null;
   window.addEventListener('resize', function() {
-    if (resizeRAF) cancelAnimationFrame(resizeRAF);
-    resizeRAF = requestAnimationFrame(function() {
-      if (window.innerWidth > 768) {
-        closeMenu();
-        resetDropdowns();
-      } else {
-        resetDropdowns();
-        var nl = document.getElementById('navLinks');
-        if (nl && nl.classList.contains('active')) {
-          scrollPos = window.scrollY;
-          document.body.style.position = 'fixed';
-          document.body.style.top = '-' + scrollPos + 'px';
-          document.body.style.width = '100%';
-        }
-      }
-      resizeRAF = null;
-    });
+    if (window.innerWidth > 768) { closeMenu(); resetDropdowns(); }
+    else { resetDropdowns(); }
   });
 
   document.addEventListener('keydown', function(e) {
@@ -312,31 +295,18 @@
   var header = document.getElementById('mainHeader');
   var navWrap = document.getElementById('navWrap');
   var lastScroll = 0;
-  var scrollTicking = false;
-  var scrollRAF = null;
 
   window.addEventListener('scroll', function() {
-    if (scrollTicking) return;
-    scrollTicking = true;
-    scrollRAF = requestAnimationFrame(function() {
-      var currentScroll = window.scrollY;
-      var docH = document.documentElement.scrollHeight - window.innerHeight;
-      var pct = docH > 0 ? (currentScroll / docH) * 100 : 0;
-      progBar.style.width = pct + '%';
-      progBar.style.opacity = pct > 0 ? '1' : '0';
-
-      if (header && navWrap) {
-        if (currentScroll > 60) navWrap.classList.add('scrolled');
-        else navWrap.classList.remove('scrolled');
-        if (currentScroll > 100) {
-          header.classList.toggle('hidden', currentScroll > lastScroll);
-        } else {
-          header.classList.remove('hidden');
-        }
-      }
-      lastScroll = currentScroll;
-      scrollTicking = false;
-    });
+    var currentScroll = window.scrollY;
+    var docH = document.documentElement.scrollHeight - window.innerHeight;
+    progBar.style.width = (docH > 0 ? (currentScroll / docH) * 100 : 0) + '%';
+    progBar.style.opacity = currentScroll > 10 ? '1' : '0';
+    if (header && navWrap) {
+      navWrap.classList.toggle('scrolled', currentScroll > 60);
+      if (currentScroll > 100) header.classList.toggle('hidden', currentScroll > lastScroll);
+      else header.classList.remove('hidden');
+    }
+    lastScroll = currentScroll;
   }, { passive: true });
 
   document.querySelectorAll('a[href^="#"]').forEach(function(a) {
